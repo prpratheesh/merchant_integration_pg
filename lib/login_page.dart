@@ -52,6 +52,189 @@ class _LoginPageState extends State<LoginPage> {
     "SENSORS",
     "DISPLAYS",
   ];
+  final Map<String, List<String>> products = {
+    "MULTIROTOR SPARE PARTS": [
+      "Propeller Blades",
+      "Flight Controller Board",
+      "Brushless Motors",
+      "ESC Modules",
+      "GPS Module",
+      "Landing Gear Set",
+      "Camera Gimbal",
+      "Motor Mounts",
+      "Power Distribution Board",
+      "Battery Straps",
+    ],
+    "BATTERIES & CHARGERS": [
+      "LiPo 11.1V 2200mAh",
+      "NiMH Rechargeable Battery",
+      "18650 Battery Pack",
+      "Battery Management System",
+      "Fast Charger for LiPo",
+      "USB-C Charging Hub",
+      "Solar Power Bank",
+      "Car Battery Charger",
+      "Lead Acid Battery 12V",
+      "Lithium-Ion Battery 3.7V",
+    ],
+    "MECHANICAL PARTS": [
+      "Aluminum Rods",
+      "Stainless Steel Gears",
+      "Bearings (608ZZ)",
+      "Timing Belts",
+      "Shaft Couplers",
+      "Pulley Wheels",
+      "Carbon Fiber Sheets",
+      "Ball Joints",
+      "Springs Set",
+      "Robotic Arm Frame",
+    ],
+    "AUTOMATION": [
+      "Stepper Motor with Driver",
+      "PLC Control Unit",
+      "Servo Motor",
+      "Relay Module",
+      "Limit Switches",
+      "Pneumatic Actuator",
+      "Linear Actuator",
+      "Conveyor Belt System",
+      "Automation Sensors Kit",
+      "Industrial Robot Controller",
+    ],
+    "MOTOR DRIVES & DRIVERS": [
+      "L298N Motor Driver",
+      "TB6600 Stepper Driver",
+      "Brushless Motor ESC",
+      "DC Motor Driver Module",
+      "PWM Speed Controller",
+      "H-Bridge Motor Driver",
+      "DRV8825 Stepper Driver",
+      "VFD Motor Controller",
+      "Brush Motor Driver",
+      "Stepper Driver Kit",
+    ],
+    "POWER SUPPLY": [
+      "12V SMPS",
+      "Adjustable Power Supply",
+      "Solar Panel 100W",
+      "DC-DC Converter",
+      "Battery Eliminator Circuit",
+      "USB Power Adapter",
+      "UPS Backup System",
+      "5V 2A Regulated Power Supply",
+      "AC-DC Adapter",
+      "Voltage Regulator Module",
+    ],
+    "ROBOT KITS": [
+      "2WD Robot Chassis Kit",
+      "4WD Smart Robot Kit",
+      "Line Follower Robot Kit",
+      "Bluetooth Controlled Robot",
+      "Obstacle Avoidance Robot",
+      "DIY Robotic Arm Kit",
+      "Raspberry Pi Robot Kit",
+      "Tank Robot Kit",
+      "Arduino Robotic Kit",
+      "Solar Robot Kit",
+    ],
+    "ROBOT WHEELS": [
+      "Rubber Wheel 65mm",
+      "Caster Wheel 50mm",
+      "Omni Wheel 100mm",
+      "Mecanum Wheel Set",
+      "PU Foam Wheel",
+      "Metallic Wheel 90mm",
+      "Treaded Robot Wheels",
+      "Plastic Wheel Hub",
+      "High Torque Robot Wheel",
+      "Wheel with Encoder",
+    ],
+    "ROBOT PARTS": [
+      "Robotic Arm Gripper",
+      "Servo Brackets",
+      "Stepper Motor Mount",
+      "Robot Chassis Frame",
+      "Robot Track System",
+      "Metal Joints Kit",
+      "AI Camera Module",
+      "High Torque Servos",
+      "Flexible Coupling",
+      "Battery Holder for Robots",
+    ],
+    "IOT - WIRELESS SOLUTIONS": [
+      "ESP32 Wi-Fi Module",
+      "LoRa Communication Kit",
+      "Zigbee Transceiver",
+      "Wi-Fi Smart Plug",
+      "IoT Relay Module",
+      "Bluetooth Beacon",
+      "RFID Module",
+      "GSM Module SIM800L",
+      "IoT Development Kit",
+      "NB-IoT Kit",
+    ],
+    "DEVELOPMENT BOARD": [
+      "Arduino UNO R3",
+      "ESP8266 Wi-Fi Board",
+      "STM32 Development Board",
+      "BeagleBone Black",
+      "Teensy 4.1",
+      "Intel Edison Kit",
+      "Adafruit Feather",
+      "NodeMCU ESP32",
+      "LPC2148 Development Kit",
+      "PIC Microcontroller Board",
+    ],
+    "RASPBERRY PI": [
+      "Raspberry Pi 4 Model B",
+      "Pi Camera Module",
+      "Pi Sense HAT",
+      "Pi GPIO Expansion Board",
+      "Pi Official Case",
+      "Pi Touchscreen Display",
+      "Pi Cooling Fan",
+      "Pi Power Supply",
+      "Pi HAT Starter Kit",
+      "Pi Desktop Kit",
+    ],
+    "PROGRAMMERS": [
+      "USB ASP Programmer",
+      "AVR ISP Programmer",
+      "Pickit3 Programmer",
+      "FTDI USB to Serial",
+      "JTAG Debugger",
+      "ST-Link V2",
+      "Arduino Bootloader Programmer",
+      "CH341A Programmer",
+      "EEPROM Programmer",
+      "Universal Programmer Kit",
+    ],
+    "SENSORS": [
+      "Ultrasonic Sensor HC-SR04",
+      "IR Proximity Sensor",
+      "DHT11 Temperature Sensor",
+      "Gas Sensor MQ-2",
+      "Gyroscope Sensor",
+      "Flex Sensor",
+      "Light Dependent Resistor",
+      "Soil Moisture Sensor",
+      "Pressure Sensor",
+      "Current Sensor ACS712",
+    ],
+    "DISPLAYS": [
+      "7-Segment Display",
+      "OLED Display 0.96 inch",
+      "TFT LCD 2.8 inch",
+      "ePaper Display Module",
+      "Dot Matrix LED Panel",
+      "16x2 LCD Module",
+      "Touch Screen Display",
+      "Graphic LCD 128x64",
+      "LED Bar Graph",
+      "RGB LED Matrix Display",
+    ],
+  };
+  String? hoveredCategory;
   final List<String> featuredProducts = [
     "High-Speed Brushless Motor",
     "Carbon Fiber Propellers",
@@ -169,6 +352,9 @@ class _LoginPageState extends State<LoginPage> {
   Map<String, dynamic> envMap = {};
   final httpService = HttpService();
   String platformInfo = '';
+  bool _isChatBarVisible = false;
+  bool isCancelHovered = false;
+  bool isProceedHovered = false;
 
   @override
   void initState() {
@@ -186,6 +372,12 @@ class _LoginPageState extends State<LoginPage> {
   void dispose() {
     _pageController.dispose();
     super.dispose();
+  }
+
+  String generateTrackId() {
+    const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    final Random random = Random.secure();
+    return List.generate(18, (index) => chars[random.nextInt(chars.length)]).join();
   }
 
   Future<void> loadEnvData() async {
@@ -243,52 +435,230 @@ class _LoginPageState extends State<LoginPage> {
 
     showDialog(
       context: context,
+      barrierDismissible: false, // Disable dismissing by tapping outside
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Login to My Account'),
-          content: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: 'Password'),
-                  obscureText: true,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
-                ),
-              ],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          title: Center(
+            child: Text(
+              'Welcome',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
+                        return 'Enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: Icon(Icons.lock),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your password';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
           actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Cancel Button
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.redAccent),
+                  ),
+                ),
+                // Login Button
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      // Add login logic here
+                      Navigator.pop(context);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                  ),
+                  child: Text('Login'),
+                ),
+              ],
+            ),
+            Center(
+              child: TextButton(
+                onPressed: () {
+                  Navigator.pop(context); // Close the login dialog
+                  _showSignUpDialog(context); // Show the sign-up dialog
+                },
+                child: Text('Don’t have an account? Sign Up'),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showSignUpDialog(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    final _emailController = TextEditingController();
+    final _passwordController = TextEditingController();
+    final _confirmPasswordController = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Disable dismissing by tapping outside
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          title: const Center(
+            child: Text(
+              'Create Account',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                      labelText: 'Email',
+                      prefixIcon: Icon(Icons.email),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your email';
+                      }
+                      if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
+                        return 'Enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      prefixIcon: Icon(Icons.lock),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a password';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    decoration: InputDecoration(
+                      labelText: 'Confirm Password',
+                      prefixIcon: Icon(Icons.lock_outline),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                    ),
+                    obscureText: true,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please confirm your password';
+                      }
+                      if (value != _passwordController.text) {
+                        return 'Passwords do not match';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            // Cancel Button
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Cancel'),
+              child: Text(
+                'Cancel',
+                style: TextStyle(color: Colors.redAccent),
+              ),
             ),
-            TextButton(
+            // Sign Up Button
+            ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
+                  // Add sign-up logic here
                   Navigator.pop(context);
                 }
               },
-              child: const Text('Login'),
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              child: Text('Sign Up'),
             ),
           ],
         );
@@ -337,7 +707,8 @@ class _LoginPageState extends State<LoginPage> {
           builder: (BuildContext context, StateSetter setState) {
             double totalAmount = 0;
             int totalQuantity = 0;
-            // Only show the items that have been added to the cart
+
+            // Calculate totalAmount and totalQuantity
             final addedItems = List.generate(cartItems.length, (index) {
               if (itemCounts[index] > 0) {
                 double itemTotal = itemCounts[index] * cartPricesAED[index];
@@ -406,24 +777,41 @@ class _LoginPageState extends State<LoginPage> {
                 return null; // Skip items that are not added to the cart
               }
             }).whereType<TableRow>().toList(); // Filter out null values and only keep TableRow widgets
+
+            // Discount Calculation
+            double discount = 0;
+            if (totalAmount > 1500) {
+              discount = totalAmount * 0.20;
+            }
+            double finalTotal = totalAmount - discount;
+
             return AlertDialog(
               backgroundColor: Colors.white, // Set background color of AlertDialog
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10), // Set the border radius
               ),
-              title: const Center(child: Text('Cart Details')),
+              title: Center(
+                child: Text(
+                  'Cart Details',
+                  style: TextStyle(fontSize: fontSize.smallerFontSize4),
+                ),
+              ),
               content: SingleChildScrollView(
                 child: Column(
                   children: [
                     if (addedItems.isEmpty)
-                      const Text('Your cart is empty.', textAlign: TextAlign.center,) // Show a message if no items are in the cart
+                      Text(
+                        'Your cart is empty.\nPlease add items to cart.',
+                        style: TextStyle(fontSize: fontSize.smallerFontSize6),
+                        textAlign: TextAlign.center,
+                      ) // Show a message if no items are in the cart
                     else
                       Table(
                         columnWidths: const {
-                          0: IntrinsicColumnWidth(), // Dynamic width for first column
-                          1: IntrinsicColumnWidth(), // Dynamic width for second column
-                          2: IntrinsicColumnWidth(), // Dynamic width for third column
-                          3: IntrinsicColumnWidth(), // Dynamic width for fourth column
+                          0: IntrinsicColumnWidth(),
+                          1: IntrinsicColumnWidth(),
+                          2: IntrinsicColumnWidth(),
+                          3: IntrinsicColumnWidth(),
                         },
                         border: TableBorder.all(),
                         children: [
@@ -431,20 +819,58 @@ class _LoginPageState extends State<LoginPage> {
                             decoration: BoxDecoration(color: Colors.blueAccent), // Header row color
                             children: [
                               TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('ITEM', style: TextStyle(color: Colors.white), textAlign: TextAlign.center))),
-                              TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('PRICE', style: TextStyle(color: Colors.white),textAlign: TextAlign.center))),
-                              TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('QTY', style: TextStyle(color: Colors.white),textAlign: TextAlign.center))),
-                              TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('TOTAL', style: TextStyle(color: Colors.white),textAlign: TextAlign.center))),
+                              TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('PRICE', style: TextStyle(color: Colors.white), textAlign: TextAlign.center))),
+                              TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('QTY', style: TextStyle(color: Colors.white), textAlign: TextAlign.center))),
+                              TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('TOTAL', style: TextStyle(color: Colors.white), textAlign: TextAlign.center))),
                             ],
                           ),
                           ...addedItems,
-                          // Add a row for total amount and quantity
                           TableRow(
                             decoration: BoxDecoration(color: Colors.grey[300]), // Total row color
                             children: [
-                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('TOTAL', style: TextStyle(fontWeight: FontWeight.bold),textAlign: TextAlign.center))),
-                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', style: TextStyle(fontWeight: FontWeight.bold),textAlign: TextAlign.center))),
-                              TableCell(child: Padding(padding: const EdgeInsets.all(8.0), child: Text('$totalQuantity', style: const TextStyle(fontWeight: FontWeight.bold),textAlign: TextAlign.center))),
-                              TableCell(child: Padding(padding: const EdgeInsets.all(8.0), child: Text('AED ${totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold),textAlign: TextAlign.center))),
+                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('TOTAL', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center))),
+                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', textAlign: TextAlign.center))),
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('$totalQuantity', style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                ),
+                              ),
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('AED ${totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (discount > 0)
+                            TableRow(
+                              decoration: BoxDecoration(color: Colors.greenAccent[100]), // Discount row color
+                              children: [
+                                const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('DISCOUNT', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center))),
+                                const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', textAlign: TextAlign.center))),
+                                const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', textAlign: TextAlign.center))),
+                                TableCell(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text('-AED ${discount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red), textAlign: TextAlign.center),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          TableRow(
+                            decoration: BoxDecoration(color: Colors.grey[200]), // Final total row color
+                            children: [
+                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('NET PAYABLE', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center))),
+                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', textAlign: TextAlign.center))),
+                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', textAlign: TextAlign.center))),
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text('AED ${finalTotal.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -453,123 +879,269 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               actions: <Widget>[
+                addedItems.isNotEmpty?
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // Center the buttons
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.of(context).pop(); // Close the dialog
-                      },
-                      child: Container(
-                        width: MediaQuery.of(context).size.width / 15, // Adjust width to be a proportion of the screen width
-                        height: MediaQuery.of(context).size.height / 25, // Adjust height for better proportion
-                        padding: const EdgeInsets.all(5),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.red, // Set the outline border color
-                            width: 1.0, // Set the outline border width
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    // Center the buttons
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      MouseRegion(
+                        onEnter: (event) => setState(() => isCancelHovered = true),
+                        onExit: (event) => setState(() => isCancelHovered = false),
+                        child: InkWell(
+                          onTap: () {
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width / 15,
+                            height: MediaQuery.of(context).size.height / 25,
+                            padding: const EdgeInsets.all(5),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: isCancelHovered ? Colors.orange : Colors.red, // Highlight on hover
+                                width: 1.0,
+                              ),
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: const Color(0xffdf8e33).withAlpha(10),
+                                  offset: const Offset(2, 4),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                )
+                              ],
+                              color: isCancelHovered ? Colors.red[50] : Colors.white, // Background on hover
+                            ),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: fontSize.smallerFontSize5,
+                                color: Colors.black,
+                              ),
+                            ),
                           ),
-                          borderRadius: const BorderRadius.all(Radius.circular(5)),
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                              color: const Color(0xffdf8e33).withAlpha(10),
-                              offset: const Offset(2, 4),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                            )
-                          ],
-                          color: Colors.white,
-                        ),
-                        child: Text(
-                          'Cancel',
-                          style: TextStyle(fontSize: fontSize.smallerFontSize4, color: Colors.black),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 20), // Add more spacing between the buttons
-                    InkWell(
-                      onTap: () async {
-                        resetItemCounts();
-                        /////////////////////////////TXN ROUTE/////////////////////////////
-                        formData['id'] = envMap['TRAN_PORTAL_ID'];
-                        formData['password'] = envMap['TRAN_PORTAL_PASSWORD'];
-                        formData['amt'] = totalAmount.toStringAsFixed(2).toString();
-                        Logger.log('DATA 1: $formData', level: LogLevel.info);
-                        String queryString = convertToQueryString(formData) + '&';
-                        Logger.log('DATA 2: $queryString', level: LogLevel.info);
-                        String payload = AES.encryptAES(envMap['RESOURCE_KEY'], queryString);
-                        Logger.log('DATA 3: $payload', level: LogLevel.info);
-                        var jsonOutput = convertToJsonString(payload, envMap['TRAN_PORTAL_ID']);
-                        Logger.log('UploadData: $jsonOutput', level: LogLevel.info);
-                        // var url = 'https://pguat.creditpluspinelabs.com/ipay/hostedHTTP';
-                        // var url = 'https://pguat.creditpluspinelabs.com/ipay/hostedHTTP';
-                        var url = 'http://localhost:9090/proxy/iPay/hostedHTTP';
-                        try {
-                          final response = await httpService.sendPostRequest(url, jsonOutput);
-                          if (response.statusCode == 200) {
-                            var data = jsonDecode(response.body);
-                            final trandata = data['trandata'];
-                            if (trandata != null) {
-                              Logger.log('return DATA 1: $trandata', level: LogLevel.info);
-                              final decryptedTrandata = AES.decryptAES(envMap['RESOURCE_KEY'], trandata);
-                              Logger.log('Decrypted URL && Payment ID: $decryptedTrandata', level: LogLevel.debug);
-                              int colonIndex = decryptedTrandata.indexOf(":");
-                              String paymentId = decryptedTrandata.substring(0, colonIndex);
-                              String url = decryptedTrandata.substring(colonIndex + 1);
-                              final completeUrl = '$url?PaymentID=$paymentId';
-                              Logger.log('DATA 4: $completeUrl', level: LogLevel.info);
-                              Logger.log('Page: $completeUrl', level: LogLevel.critical);
-                              final uri = Uri.parse(completeUrl);
-                              await launchUrl(uri);
-                            } else {
-                              print('Error: "trandata" field not found in response');
+                      const SizedBox(width: 20),
+                      MouseRegion(
+                        onEnter: (event) => setState(() => isProceedHovered = true),
+                        onExit: (event) => setState(() => isProceedHovered = false),
+                        child: InkWell(
+                          onTap: () async {
+                            resetItemCounts();
+                            /////////////////////////////TXN ROUTE/////////////////////////////
+                            formData['id'] = envMap['TRAN_PORTAL_ID'];
+                            formData['password'] = envMap['TRAN_PORTAL_PASSWORD'];
+                            formData['amt'] = totalAmount.toStringAsFixed(2)
+                                .toString();
+                            formData['trackId'] = generateTrackId();
+                            Logger.log('DATA 1: $formData', level: LogLevel.info);
+                            String queryString = convertToQueryString(formData) +
+                                '&';
+                            Logger.log(
+                                'DATA 2: $queryString', level: LogLevel.info);
+                            String payload = AES.encryptAES(
+                                envMap['RESOURCE_KEY'], queryString);
+                            Logger.log('DATA 3: $payload', level: LogLevel.info);
+                            var jsonOutput = convertToJsonString(
+                                payload, envMap['TRAN_PORTAL_ID']);
+                            Logger.log(
+                                'UploadData: $jsonOutput', level: LogLevel.info);
+                            // var url = 'https://pguat.creditpluspinelabs.com/ipay/hostedHTTP';
+                            // var url = 'https://pguat.creditpluspinelabs.com/ipay/hostedHTTP';
+                            var url = 'http://localhost:9090/proxy/iPay/hostedHTTP';
+                            try {
+                              final response = await httpService.sendPostRequest(
+                                  url, jsonOutput);
+                              if (response.statusCode == 200) {
+                                var data = jsonDecode(response.body);
+                                final trandata = data['trandata'];
+                                if (trandata != null) {
+                                  Logger.log('return DATA 1: $trandata',
+                                      level: LogLevel.info);
+                                  final decryptedTrandata = AES.decryptAES(
+                                      envMap['RESOURCE_KEY'], trandata);
+                                  Logger.log(
+                                      'Decrypted URL && Payment ID: $decryptedTrandata',
+                                      level: LogLevel.debug);
+                                  int colonIndex = decryptedTrandata.indexOf(":");
+                                  String paymentId = decryptedTrandata.substring(
+                                      0, colonIndex);
+                                  String url = decryptedTrandata.substring(
+                                      colonIndex + 1);
+                                  final completeUrl = '$url?PaymentID=$paymentId';
+                                  Logger.log('DATA 4: $completeUrl',
+                                      level: LogLevel.info);
+                                  Logger.log('Page: $completeUrl',
+                                      level: LogLevel.critical);
+                                  final uri = Uri.parse(completeUrl);
+                                  await launchUrl(uri);
+                                } else {
+                                  Logger.log(
+                                      'Error: "trandata" field not found in response',
+                                      level: LogLevel.error);
+                                }
+                              } else {
+                                Logger.log('Request failed with status: ${response
+                                    .statusCode}', level: LogLevel.error);
+                                Logger.log('Response body: ${response.body}',
+                                    level: LogLevel.error);
+                              }
+                            } catch (e) {
+                              Logger.log('Error: $e', level: LogLevel.error);
                             }
-                          } else {
-                            print('Request failed with status: ${response.statusCode}');
-                            print('Response body: ${response.body}');
-                          }
-                        } catch (e) {
-                          Logger.log('Error: $e', level: LogLevel.error);
-                        }
-                        /////////////////////////////TXN ROUTE/////////////////////////////
-                        Navigator.of(context).pop(); // Close the dialog
-                      },
-                      child: Container(
-                        width: MediaQuery.of(context).size.width / 15, // Adjust width to be a proportion of the screen width
-                        height: MediaQuery.of(context).size.height / 25, // Adjust height for better proportion
-                        padding: const EdgeInsets.all(5),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.green, // Set the outline border color
-                            width: 1.0, // Set the outline border width
+                            /////////////////////////////TXN ROUTE/////////////////////////////
+                            Navigator.of(context).pop(); // Close the dialog
+                          },
+                          child: Container(
+                            width: MediaQuery.of(context).size.width / 15,
+                            height: MediaQuery.of(context).size.height / 25,
+                            padding: const EdgeInsets.all(5),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: isProceedHovered ? Colors.blue : Colors.green, // Highlight on hover
+                                width: 1.0,
+                              ),
+                              borderRadius: const BorderRadius.all(Radius.circular(5)),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: const Color(0xffdf8e33).withAlpha(10),
+                                  offset: const Offset(2, 4),
+                                  blurRadius: 10,
+                                  spreadRadius: 2,
+                                )
+                              ],
+                              color: isProceedHovered ? Colors.green[50] : Colors.white, // Background on hover
+                            ),
+                            child: Text(
+                              'Proceed',
+                              style: TextStyle(
+                                fontSize: fontSize.smallerFontSize5,
+                                color: Colors.black,
+                              ),
+                            ),
                           ),
-                          borderRadius: const BorderRadius.all(Radius.circular(5)),
-                          boxShadow: <BoxShadow>[
-                            BoxShadow(
-                              color: const Color(0xffdf8e33).withAlpha(10),
-                              offset: const Offset(2, 4),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                            )
-                          ],
-                          color: Colors.white,
-                        ),
-                        child: Text(
-                          'Proceed',
-                          style: TextStyle(fontSize: fontSize.smallerFontSize4, color: Colors.black),
                         ),
                       ),
+                    ]
+                ): Center(
+                  child: TextButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.blue, // Set your desired background color
+                      foregroundColor: Colors.white, // Set the text color
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0), // Adjust padding
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                      ),
                     ),
-                  ],
-                )
+                    child: Text('Ok',style: TextStyle(fontSize: fontSize.smallerFontSize6),),
+                  ),
+                ),
               ],
             );
           },
         );
       },
+    );
+  }
+
+  Widget buildChatBox(BuildContext context) {
+    return Positioned(
+      right: 5, // Align to the right side with some margin
+      bottom: MediaQuery.of(context).size.height / 15, // Position above the FloatingActionButton
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        height: _isChatBarVisible ? MediaQuery.of(context).size.height / 2 : 0, // Set height to 0 when hidden
+        width: MediaQuery.of(context).size.width / 8, // Adjust width as needed
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              offset: Offset(0, 4),
+              blurRadius: 10,
+            ),
+          ],
+          borderRadius: BorderRadius.all(
+            Radius.circular(15),
+          ),
+        ),
+        child: _isChatBarVisible
+            ? Column(
+          children: [
+            // Chat bar header
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: const BoxDecoration(
+                color: Color(0xFF004426),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(15),
+                  topRight: Radius.circular(15),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Chat",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        _isChatBarVisible = false;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+            // Chat messages area
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(10),
+                children: const [
+                  Text("Welcome to the chat!", style: TextStyle(fontSize: 16)),
+                  // Add more messages here
+                ],
+              ),
+            ),
+            // Input field
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      decoration: InputDecoration(
+                        hintText: "Type a message",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  IconButton(
+                    icon: const Icon(Icons.send, color: Color(0xFF004426)),
+                    onPressed: () {
+                      // Handle send action here
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        )
+            : const SizedBox.shrink(),
+      ),
     );
   }
 
@@ -825,275 +1397,279 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          Container(
-            height: MediaQuery.of(context).size.height/25,
-            width: double.infinity,
-            color: const Color(0xFF003323),
-            child: Center(child: Text('Get 20% Off for your first order above 1500 AED.', style: TextStyle(fontSize: fontSizes.smallerFontSize4, color: Colors.white),),),
-          ),
-          SizedBox(height: MediaQuery.of(context).size.height / 1000),
-          Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-          Container(
-              height: MediaQuery.of(context).size.height / 1.75,
-              width: MediaQuery.of(context).size.width / 6,
-              color: const Color(0xFF003323),
-              child: ListView.separated(
-                itemCount: categories.length + 1, // Add 1 for the static box
-                separatorBuilder: (context, index) => const Divider(
-                  color: Colors.white,
-                  height: 0.1,
-                ),
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    // Static black box with text
-                    return Container(
-                      color: Colors.black,
-                      padding: const EdgeInsets.all(1.0),
-                      child: Center(
-                        child: Text(
-                        'ITEMS',
-                        style: TextStyle(
-                          color: Colors.white,
-                            fontSize: fontSizes.smallerFontSize4,
-                        ),
-                      ),
-                      ),
-                    );
-                  } else {
-                    // Dynamic list items (adjust index by subtracting 1)
-                    return ListTile(
-                      title: Text(
-                        categories[index - 1],
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: fontSizes.smallerFontSize5,
-                        ),
-                      ),
-                      trailing: (index - 1) == 4 // Adding a SALE tag for 'MOTORS'
-                          ? const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            "SALE",
-                            style: TextStyle(
-                              color: Colors.red,
-                            ),
-                          ),
-                          Icon(Icons.arrow_forward_ios, color: Colors.white),
-                        ],
-                      )
-                          : const Icon(Icons.arrow_forward_ios, color: Colors.white),
-                      onTap: () {
-                        // Handle menu tap
-                      },
-                    );
-                  }
-                },
+          Center(child: Column(
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height/25,
+                width: double.infinity,
+                color: const Color(0xFF003323),
+                child: Center(child: Text('Get 20% Off for your first order above 1500 AED.', style: TextStyle(fontSize: fontSizes.smallerFontSize4, color: Colors.white),),),
               ),
-            ),//LEFT MENU
-          SizedBox(
-            height: MediaQuery.of(context).size.height / 1.75,
-            width: MediaQuery.of(context).size.width / 1.5,
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: _imagePaths.length,
-              itemBuilder: (context, index) {
-                return Image.asset(
-                  _imagePaths[index],
-                  fit: BoxFit.cover,
-                  width: double.maxFinite,
-                );
-              },
-            ),
-          ),//CENTER IMAGE SCROLL
-          Container(
-              height: MediaQuery.of(context).size.height / 1.75,
-              width: MediaQuery.of(context).size.width / 6,
-              color: const Color(0xFF003323),
-              child: ListView.separated(
-                itemCount: featuredProducts.length + 1, // Add 1 for the static box
-                separatorBuilder: (context, index) => const Divider(
-                  color: Colors.white,
-                  height: 0.1,
-                ),
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    // Static black box with text
-                    return Container(
-                      color: Colors.black,
-                      padding: const EdgeInsets.all(1.0),
-                      child: Center(
-                        child: Text(
-                          'FEATURED PRODUCTS',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: fontSizes.smallerFontSize4,
-                          ),
-                        ),
+              SizedBox(height: MediaQuery.of(context).size.height / 1000),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    height: MediaQuery.of(context).size.height / 1.75,
+                    width: MediaQuery.of(context).size.width / 6,
+                    color: const Color(0xFF003323),
+                    child: ListView.separated(
+                      itemCount: categories.length + 1, // Add 1 for the static box
+                      separatorBuilder: (context, index) => const Divider(
+                        color: Colors.white,
+                        height: 0.1,
                       ),
-                    );
-                  } else {
-                    // Dynamic list items (adjust index by subtracting 1)
-                    return ListTile(
-                      title: Text(
-                        featuredProducts[index - 1],
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: fontSizes.smallerFontSize5,
-                        ),
-                      ),
-                      onTap: () {
-                        // Handle menu tap
-                      },
-                    );
-                  }
-                },
-              ),
-            ),//RIGHT MENU
-          ],
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height / 10,
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 5, // 6 columns
-                    crossAxisSpacing: 1.0, // Spacing between cards horizontally
-                    mainAxisSpacing: 1.0, // Spacing between cards vertically
-                    childAspectRatio: 1.75, // Adjusted to make the cards smaller
-                  ),
-                  itemCount: 20, // Number of items to display
-                  itemBuilder: (context, index) {
-                    return Card(
-                      elevation: 10, // Slightly reduced elevation for a softer effect
-                      child: Stack(
-                        fit: StackFit.loose, // Ensure the stack takes the full card space
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(5), // Smaller rounded corners for the image as well
-                              image: DecorationImage(
-                                image: AssetImage('assets/itemImages/${index + 1}.jpg'),
-                                fit: BoxFit.cover, // Ensures the image covers the entire container
-                              ),
-                              border: Border.all( // Adding border to the container
-                                color: Colors.blue, // Dark green border
-                                width: 1.0, // Border width
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          // Static black box with text
+                          return Container(
+                            color: Colors.black,
+                            padding: const EdgeInsets.all(1.0),
+                            child: Center(
+                              child: Text(
+                                'ITEMS',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: fontSizes.smallerFontSize4,
+                                ),
                               ),
                             ),
-                          ),
-                          Positioned.fill(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.black.withOpacity(0.6),
-                                    Colors.black.withOpacity(0.1),
+                          );
+                        } else {
+                          // Dynamic list items (adjust index by subtracting 1)
+                          return ListTile(
+                            title: Text(
+                              categories[index - 1],
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: fontSizes.smallerFontSize5,
+                              ),
+                            ),
+                            trailing: (index - 1) == 4 // Adding a SALE tag for 'MOTORS'
+                                ? const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  "SALE",
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                                Icon(Icons.arrow_forward_ios, color: Colors.white),
+                              ],
+                            )
+                                : const Icon(Icons.arrow_forward_ios, color: Colors.white),
+                            onTap: () {
+                              // Handle menu tap
+                            },
+                          );
+                        }
+                      },
+                    ),
+                  ),//LEFT MENU
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height / 1.75,
+                    width: MediaQuery.of(context).size.width / 1.5,
+                    child: PageView.builder(
+                      controller: _pageController,
+                      itemCount: _imagePaths.length,
+                      itemBuilder: (context, index) {
+                        return Image.asset(
+                          _imagePaths[index],
+                          fit: BoxFit.cover,
+                          width: double.maxFinite,
+                        );
+                      },
+                    ),
+                  ),//CENTER IMAGE SCROLL
+                  Container(
+                    height: MediaQuery.of(context).size.height / 1.75,
+                    width: MediaQuery.of(context).size.width / 6,
+                    color: const Color(0xFF003323),
+                    child: ListView.separated(
+                      itemCount: featuredProducts.length + 1, // Add 1 for the static box
+                      separatorBuilder: (context, index) => const Divider(
+                        color: Colors.white,
+                        height: 0.1,
+                      ),
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          // Static black box with text
+                          return Container(
+                            color: Colors.black,
+                            padding: const EdgeInsets.all(1.0),
+                            child: Center(
+                              child: Text(
+                                'FEATURED PRODUCTS',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: fontSizes.smallerFontSize4,
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          // Dynamic list items (adjust index by subtracting 1)
+                          return ListTile(
+                            title: Text(
+                              featuredProducts[index - 1],
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: fontSizes.smallerFontSize5,
+                              ),
+                            ),
+                            onTap: () {
+                              // Handle menu tap
+                            },
+                          );
+                        }
+                      },
+                    ),
+                  ),//RIGHT MENU
+                ],
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).size.height / 10,
+                    child: GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 5, // 6 columns
+                        crossAxisSpacing: 1.0, // Spacing between cards horizontally
+                        mainAxisSpacing: 1.0, // Spacing between cards vertically
+                        childAspectRatio: 1.75, // Adjusted to make the cards smaller
+                      ),
+                      itemCount: 20, // Number of items to display
+                      itemBuilder: (context, index) {
+                        return Card(
+                          elevation: 10, // Slightly reduced elevation for a softer effect
+                          child: Stack(
+                            fit: StackFit.loose, // Ensure the stack takes the full card space
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(5), // Smaller rounded corners for the image as well
+                                  image: DecorationImage(
+                                    image: AssetImage('assets/itemImages/${index + 1}.jpg'),
+                                    fit: BoxFit.cover, // Ensures the image covers the entire container
+                                  ),
+                                  border: Border.all( // Adding border to the container
+                                    color: Colors.blue, // Dark green border
+                                    width: 1.0, // Border width
+                                  ),
+                                ),
+                              ),
+                              Positioned.fill(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(5),
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        Colors.black.withOpacity(0.6),
+                                        Colors.black.withOpacity(0.1),
+                                      ],
+                                      begin: Alignment.bottomCenter,
+                                      end: Alignment.topCenter,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom:  10,
+                                left: 10,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      cartItems[index], // Product title
+                                      style: GoogleFonts.roboto( // Change the font to Roboto (you can choose other fonts here)
+                                        color: Colors.white,
+                                        fontSize: fontSizes.smallerFontSize4, // Slightly smaller text for the title
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    Text(
+                                      'AED ${cartPricesAED[index].toStringAsFixed(2)}', // Display price in AED with two decimal places
+                                      style: TextStyle(
+                                        color: Colors.yellow,
+                                        fontSize: fontSizes.smallerFontSize4, // Slightly smaller price text
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Row(
+                                      children: List.generate(5, (starIndex) {
+                                        return Icon(
+                                          Icons.star,
+                                          color: starIndex < ratings[index] ? Colors.yellow : Colors.grey,
+                                          size: fontSizes.smallerFontSize6,
+                                        );
+                                      }),
+                                    ),
                                   ],
-                                  begin: Alignment.bottomCenter,
-                                  end: Alignment.topCenter,
                                 ),
                               ),
-                            ),
+                              Positioned(
+                                bottom: 10,
+                                right: 10,
+                                child: Row(
+                                  children: [
+                                    // Minus Button
+                                    IconButton(
+                                      icon: const Icon(Icons.remove, color: Colors.yellow),
+                                      onPressed: () {
+                                        setState(() {
+                                          if (itemCounts[index] > 0) {
+                                            itemCounts[index]--; // Decrease item count
+                                            cartCount--; // Decrease total cart count
+                                          }
+                                        });
+                                      },
+                                    ),
+                                    // Display Item Count
+                                    Text(
+                                      '${itemCounts[index]}',
+                                      style: TextStyle(
+                                        fontSize: fontSizes.smallerFontSize4,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.yellow,
+                                      ),
+                                    ),
+                                    // Plus Button
+                                    IconButton(
+                                      icon: const Icon(Icons.add, color: Colors.yellow),
+                                      onPressed: () {
+                                        setState(() {
+                                          itemCounts[index]++; // Increase item count
+                                          cartCount++; // Increase total cart count
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          Positioned(
-                            bottom:  10,
-                            left: 10,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  cartItems[index], // Product title
-                                  style: GoogleFonts.roboto( // Change the font to Roboto (you can choose other fonts here)
-                                    color: Colors.white,
-                                    fontSize: fontSizes.smallerFontSize4, // Slightly smaller text for the title
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                Text(
-                                  'AED ${cartPricesAED[index].toStringAsFixed(2)}', // Display price in AED with two decimal places
-                                  style: TextStyle(
-                                    color: Colors.yellow,
-                                    fontSize: fontSizes.smallerFontSize4, // Slightly smaller price text
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                Row(
-                                  children: List.generate(5, (starIndex) {
-                                    return Icon(
-                                      Icons.star,
-                                      color: starIndex < ratings[index] ? Colors.yellow : Colors.grey,
-                                      size: fontSizes.smallerFontSize6,
-                                    );
-                                  }),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 10,
-                            right: 10,
-                            child: Row(
-                              children: [
-                                // Minus Button
-                                IconButton(
-                                  icon: const Icon(Icons.remove, color: Colors.yellow),
-                                  onPressed: () {
-                                    setState(() {
-                                      if (itemCounts[index] > 0) {
-                                        itemCounts[index]--; // Decrease item count
-                                        cartCount--; // Decrease total cart count
-                                      }
-                                    });
-                                  },
-                                ),
-                                // Display Item Count
-                                Text(
-                                  '${itemCounts[index]}',
-                                  style: TextStyle(
-                                    fontSize: fontSizes.smallerFontSize4,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.yellow,
-                                  ),
-                                ),
-                                // Plus Button
-                                IconButton(
-                                  icon: const Icon(Icons.add, color: Colors.yellow),
-                                  onPressed: () {
-                                    setState(() {
-                                      itemCounts[index]++; // Increase item count
-                                      cartCount++; // Increase total cart count
-                                    });
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ),
-            ),
-          )
+            ],
+          )),
+          if (_isChatBarVisible) buildChatBox(context),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // Handle FAB press action
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Floating Action Button Pressed!')),
-          );
+          setState(() {
+            _isChatBarVisible = !_isChatBarVisible;
+          });
         },
         backgroundColor: const Color(0xFF003323),
         label: Text("Chat", style: TextStyle(color: Colors.white, fontSize: fontSizes.smallerFontSize4),),
