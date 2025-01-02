@@ -15,6 +15,9 @@ import 'package:http/http.dart' as http;
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'dart:io' as io;
 import 'logger.dart';
+import 'dart:html' as html;
+import 'package:provider/provider.dart';
+import 'websocket_provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -316,12 +319,12 @@ class _LoginPageState extends State<LoginPage> {
     150.25, // Turnigy 11.1V LiPo
     450.00, // RoboHobby Drone Frame
     550.50, // X-Wing Drone Frame
-    99.99,  // ZigBee Hub
-    89.50,  // Sonoff Smart Switch
+    99.99, // ZigBee Hub
+    89.50, // Sonoff Smart Switch
     180.00, // DRV8825 Stepper Driver
     220.25, // A2212 Brushless Motor
     100.00, // MeanWell 12V Power
-    75.75,  // Pololu 12V Supply
+    75.75, // Pololu 12V Supply
     135.25, // Elegoo UNO Kit
     235.50, // Raspberry Pi 4 Kit
     250.00, // Tamiya RC Chassis
@@ -332,9 +335,11 @@ class _LoginPageState extends State<LoginPage> {
     220.75, // Adafruit LoRa Wing
   ];
 // Generate a list of random ratings for the items
-  List<int> ratings = List<int>.generate(20, (index) => Random().nextInt(4) + 2);
+  List<int> ratings =
+      List<int>.generate(20, (index) => Random().nextInt(4) + 2);
   int cartCount = 0; // Total items in the cart
-  List<int> itemCounts = List.generate(20, (_) => 0); // Tracks items added for each product
+  List<int> itemCounts =
+      List.generate(20, (_) => 0); // Tracks items added for each product
   final Map<String, String> formData = {
     'amt': '65.00',
     'action': '1',
@@ -355,6 +360,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isChatBarVisible = false;
   bool isCancelHovered = false;
   bool isProceedHovered = false;
+  html.Window? paymentWindow;
 
   @override
   void initState() {
@@ -375,9 +381,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   String generateTrackId() {
-    const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const String chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     final Random random = Random.secure();
-    return List.generate(18, (index) => chars[random.nextInt(chars.length)]).join();
+    return List.generate(18, (index) => chars[random.nextInt(chars.length)])
+        .join();
   }
 
   Future<void> loadEnvData() async {
@@ -391,7 +399,8 @@ class _LoginPageState extends State<LoginPage> {
       Logger.log('Loaded ENV data: $envMap', level: LogLevel.info);
     } catch (e) {
       Logger.log(e.toString(), level: LogLevel.error);
-      Logger.log('ERROR LOADING ENV FILE: ${e.toString()}', level: LogLevel.info);
+      Logger.log('ERROR LOADING ENV FILE: ${e.toString()}',
+          level: LogLevel.info);
       return;
     }
     // // Pretty print JSON string with indentation
@@ -424,7 +433,7 @@ class _LoginPageState extends State<LoginPage> {
       cartCount = 0;
       numberOfItems = 0;
       itemCounts = List.generate(20, (_) => 0);
-      cartCount=0;
+      cartCount = 0;
     });
   }
 
@@ -469,7 +478,8 @@ class _LoginPageState extends State<LoginPage> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
+                      if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                          .hasMatch(value)) {
                         return 'Enter a valid email';
                       }
                       return null;
@@ -585,7 +595,8 @@ class _LoginPageState extends State<LoginPage> {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(value)) {
+                      if (!RegExp(r"^[a-zA-Z0-9.]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                          .hasMatch(value)) {
                         return 'Enter a valid email';
                       }
                       return null;
@@ -671,12 +682,13 @@ class _LoginPageState extends State<LoginPage> {
       padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: TextButton(
         onPressed: () {
-          // Handle navigation actions
+          Navigator.pushNamed(context, '/response');
           print('$title tapped');
         },
         child: Text(
           title,
-          style: TextStyle(color: Colors.black, fontSize: fontSize.smallerFontSize5),
+          style: TextStyle(
+              color: Colors.black, fontSize: fontSize.smallerFontSize5),
         ),
       ),
     );
@@ -690,7 +702,8 @@ class _LoginPageState extends State<LoginPage> {
         });
         _pageController.animateToPage(
           _currentPage,
-          duration: const Duration(milliseconds: 800), // Increase duration for smoother effect
+          duration: const Duration(
+              milliseconds: 800), // Increase duration for smoother effect
           curve: Curves.easeInOutCubic, // Use a smoother curve
         );
       }
@@ -717,7 +730,9 @@ class _LoginPageState extends State<LoginPage> {
 
                 return TableRow(
                   decoration: BoxDecoration(
-                    color: (index % 2 == 0) ? Colors.grey[200] : Colors.white, // Alternate row colors
+                    color: (index % 2 == 0)
+                        ? Colors.grey[200]
+                        : Colors.white, // Alternate row colors
                   ),
                   children: [
                     TableCell(
@@ -776,7 +791,9 @@ class _LoginPageState extends State<LoginPage> {
               } else {
                 return null; // Skip items that are not added to the cart
               }
-            }).whereType<TableRow>().toList(); // Filter out null values and only keep TableRow widgets
+            })
+                .whereType<TableRow>()
+                .toList(); // Filter out null values and only keep TableRow widgets
 
             // Discount Calculation
             double discount = 0;
@@ -786,9 +803,11 @@ class _LoginPageState extends State<LoginPage> {
             double finalTotal = totalAmount - discount;
 
             return AlertDialog(
-              backgroundColor: Colors.white, // Set background color of AlertDialog
+              backgroundColor:
+                  Colors.white, // Set background color of AlertDialog
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10), // Set the border radius
+                borderRadius:
+                    BorderRadius.circular(10), // Set the border radius
               ),
               title: Center(
                 child: Text(
@@ -816,59 +835,139 @@ class _LoginPageState extends State<LoginPage> {
                         border: TableBorder.all(),
                         children: [
                           const TableRow(
-                            decoration: BoxDecoration(color: Colors.blueAccent), // Header row color
+                            decoration: BoxDecoration(
+                                color: Colors.blueAccent), // Header row color
                             children: [
-                              TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('ITEM', style: TextStyle(color: Colors.white), textAlign: TextAlign.center))),
-                              TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('PRICE', style: TextStyle(color: Colors.white), textAlign: TextAlign.center))),
-                              TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('QTY', style: TextStyle(color: Colors.white), textAlign: TextAlign.center))),
-                              TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('TOTAL', style: TextStyle(color: Colors.white), textAlign: TextAlign.center))),
+                              TableCell(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text('ITEM',
+                                          style: TextStyle(color: Colors.white),
+                                          textAlign: TextAlign.center))),
+                              TableCell(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text('PRICE',
+                                          style: TextStyle(color: Colors.white),
+                                          textAlign: TextAlign.center))),
+                              TableCell(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text('QTY',
+                                          style: TextStyle(color: Colors.white),
+                                          textAlign: TextAlign.center))),
+                              TableCell(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text('TOTAL',
+                                          style: TextStyle(color: Colors.white),
+                                          textAlign: TextAlign.center))),
                             ],
                           ),
                           ...addedItems,
                           TableRow(
-                            decoration: BoxDecoration(color: Colors.grey[300]), // Total row color
+                            decoration: BoxDecoration(
+                                color: Colors.grey[300]), // Total row color
                             children: [
-                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('TOTAL', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center))),
-                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', textAlign: TextAlign.center))),
+                              const TableCell(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text('TOTAL',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.center))),
+                              const TableCell(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text('',
+                                          textAlign: TextAlign.center))),
                               TableCell(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text('$totalQuantity', style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                  child: Text('$totalQuantity',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center),
                                 ),
                               ),
                               TableCell(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text('AED ${totalAmount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                  child: Text(
+                                      'AED ${totalAmount.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center),
                                 ),
                               ),
                             ],
                           ),
                           if (discount > 0)
                             TableRow(
-                              decoration: BoxDecoration(color: Colors.greenAccent[100]), // Discount row color
+                              decoration: BoxDecoration(
+                                  color: Colors
+                                      .greenAccent[100]), // Discount row color
                               children: [
-                                const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('DISCOUNT', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center))),
-                                const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', textAlign: TextAlign.center))),
-                                const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', textAlign: TextAlign.center))),
+                                const TableCell(
+                                    child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text('DISCOUNT',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                            textAlign: TextAlign.center))),
+                                const TableCell(
+                                    child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text('',
+                                            textAlign: TextAlign.center))),
+                                const TableCell(
+                                    child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Text('',
+                                            textAlign: TextAlign.center))),
                                 TableCell(
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: Text('-AED ${discount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red), textAlign: TextAlign.center),
+                                    child: Text(
+                                        '-AED ${discount.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.red),
+                                        textAlign: TextAlign.center),
                                   ),
                                 ),
                               ],
                             ),
                           TableRow(
-                            decoration: BoxDecoration(color: Colors.grey[200]), // Final total row color
+                            decoration: BoxDecoration(
+                                color:
+                                    Colors.grey[200]), // Final total row color
                             children: [
-                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('NET PAYABLE', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center))),
-                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', textAlign: TextAlign.center))),
-                              const TableCell(child: Padding(padding: EdgeInsets.all(8.0), child: Text('', textAlign: TextAlign.center))),
+                              const TableCell(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text('NET PAYABLE',
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                          textAlign: TextAlign.center))),
+                              const TableCell(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text('',
+                                          textAlign: TextAlign.center))),
+                              const TableCell(
+                                  child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text('',
+                                          textAlign: TextAlign.center))),
                               TableCell(
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text('AED ${finalTotal.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                  child: Text(
+                                      'AED ${finalTotal.toStringAsFixed(2)}',
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                      textAlign: TextAlign.center),
                                 ),
                               ),
                             ],
@@ -879,169 +978,153 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               actions: <Widget>[
-                addedItems.isNotEmpty?
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    // Center the buttons
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      MouseRegion(
-                        onEnter: (event) => setState(() => isCancelHovered = true),
-                        onExit: (event) => setState(() => isCancelHovered = false),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context).pop(); // Close the dialog
-                          },
-                          child: Container(
-                            width: MediaQuery.of(context).size.width / 15,
-                            height: MediaQuery.of(context).size.height / 25,
-                            padding: const EdgeInsets.all(5),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: isCancelHovered ? Colors.orange : Colors.red, // Highlight on hover
-                                width: 1.0,
+                if (addedItems.isNotEmpty)
+                  Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      // Center the buttons
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        MouseRegion(
+                          onEnter: (event) =>
+                              setState(() => isCancelHovered = true),
+                          onExit: (event) =>
+                              setState(() => isCancelHovered = false),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: Container(
+                              width: MediaQuery.of(context).size.width / 15,
+                              height: MediaQuery.of(context).size.height / 25,
+                              padding: const EdgeInsets.all(5),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: isCancelHovered
+                                      ? Colors.orange
+                                      : Colors.red, // Highlight on hover
+                                  width: 1.0,
+                                ),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(5)),
+                                boxShadow: <BoxShadow>[
+                                  BoxShadow(
+                                    color:
+                                        const Color(0xffdf8e33).withAlpha(10),
+                                    offset: const Offset(2, 4),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  )
+                                ],
+                                color: isCancelHovered
+                                    ? Colors.red[50]
+                                    : Colors.white, // Background on hover
                               ),
-                              borderRadius: const BorderRadius.all(Radius.circular(5)),
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  color: const Color(0xffdf8e33).withAlpha(10),
-                                  offset: const Offset(2, 4),
-                                  blurRadius: 10,
-                                  spreadRadius: 2,
-                                )
-                              ],
-                              color: isCancelHovered ? Colors.red[50] : Colors.white, // Background on hover
-                            ),
-                            child: Text(
-                              'Cancel',
-                              style: TextStyle(
-                                fontSize: fontSize.smallerFontSize5,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      MouseRegion(
-                        onEnter: (event) => setState(() => isProceedHovered = true),
-                        onExit: (event) => setState(() => isProceedHovered = false),
-                        child: InkWell(
-                          onTap: () async {
-                            resetItemCounts();
-                            /////////////////////////////TXN ROUTE/////////////////////////////
-                            formData['id'] = envMap['TRAN_PORTAL_ID'];
-                            formData['password'] = envMap['TRAN_PORTAL_PASSWORD'];
-                            formData['amt'] = totalAmount.toStringAsFixed(2)
-                                .toString();
-                            formData['trackId'] = generateTrackId();
-                            Logger.log('DATA 1: $formData', level: LogLevel.info);
-                            String queryString = convertToQueryString(formData) +
-                                '&';
-                            Logger.log(
-                                'DATA 2: $queryString', level: LogLevel.info);
-                            String payload = AES.encryptAES(
-                                envMap['RESOURCE_KEY'], queryString);
-                            Logger.log('DATA 3: $payload', level: LogLevel.info);
-                            var jsonOutput = convertToJsonString(
-                                payload, envMap['TRAN_PORTAL_ID']);
-                            Logger.log(
-                                'UploadData: $jsonOutput', level: LogLevel.info);
-                            // var url = 'https://pguat.creditpluspinelabs.com/ipay/hostedHTTP';
-                            // var url = 'https://pguat.creditpluspinelabs.com/ipay/hostedHTTP';
-                            var url = 'http://localhost:9090/proxy/iPay/hostedHTTP';
-                            try {
-                              final response = await httpService.sendPostRequest(
-                                  url, jsonOutput);
-                              if (response.statusCode == 200) {
-                                var data = jsonDecode(response.body);
-                                final trandata = data['trandata'];
-                                if (trandata != null) {
-                                  Logger.log('return DATA 1: $trandata',
-                                      level: LogLevel.info);
-                                  final decryptedTrandata = AES.decryptAES(
-                                      envMap['RESOURCE_KEY'], trandata);
-                                  Logger.log(
-                                      'Decrypted URL && Payment ID: $decryptedTrandata',
-                                      level: LogLevel.debug);
-                                  int colonIndex = decryptedTrandata.indexOf(":");
-                                  String paymentId = decryptedTrandata.substring(
-                                      0, colonIndex);
-                                  String url = decryptedTrandata.substring(
-                                      colonIndex + 1);
-                                  final completeUrl = '$url?PaymentID=$paymentId';
-                                  Logger.log('DATA 4: $completeUrl',
-                                      level: LogLevel.info);
-                                  Logger.log('Page: $completeUrl',
-                                      level: LogLevel.critical);
-                                  final uri = Uri.parse(completeUrl);
-                                  await launchUrl(uri);
-                                } else {
-                                  Logger.log(
-                                      'Error: "trandata" field not found in response',
-                                      level: LogLevel.error);
-                                }
-                              } else {
-                                Logger.log('Request failed with status: ${response
-                                    .statusCode}', level: LogLevel.error);
-                                Logger.log('Response body: ${response.body}',
-                                    level: LogLevel.error);
-                              }
-                            } catch (e) {
-                              Logger.log('Error: $e', level: LogLevel.error);
-                            }
-                            /////////////////////////////TXN ROUTE/////////////////////////////
-                            Navigator.of(context).pop(); // Close the dialog
-                          },
-                          child: Container(
-                            width: MediaQuery.of(context).size.width / 15,
-                            height: MediaQuery.of(context).size.height / 25,
-                            padding: const EdgeInsets.all(5),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: isProceedHovered ? Colors.blue : Colors.green, // Highlight on hover
-                                width: 1.0,
-                              ),
-                              borderRadius: const BorderRadius.all(Radius.circular(5)),
-                              boxShadow: <BoxShadow>[
-                                BoxShadow(
-                                  color: const Color(0xffdf8e33).withAlpha(10),
-                                  offset: const Offset(2, 4),
-                                  blurRadius: 10,
-                                  spreadRadius: 2,
-                                )
-                              ],
-                              color: isProceedHovered ? Colors.green[50] : Colors.white, // Background on hover
-                            ),
-                            child: Text(
-                              'Proceed',
-                              style: TextStyle(
-                                fontSize: fontSize.smallerFontSize5,
-                                color: Colors.black,
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: fontSize.smallerFontSize5,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
                           ),
                         ),
+                        const SizedBox(width: 20),
+                        MouseRegion(
+                          onEnter: (event) =>
+                              setState(() => isProceedHovered = true),
+                          onExit: (event) =>
+                              setState(() => isProceedHovered = false),
+                          child: InkWell(
+                            onTap: () async {
+                              resetItemCounts();
+                              /////////////////////////////TXN ROUTE/////////////////////////////
+                              formData['id'] = envMap['TRAN_PORTAL_ID'];
+                              formData['password'] =
+                                  envMap['TRAN_PORTAL_PASSWORD'];
+                              formData['amt'] =
+                                  totalAmount.toStringAsFixed(2).toString();
+                              formData['trackId'] = generateTrackId();
+                              Logger.log('DATA 1: $formData',
+                                  level: LogLevel.info);
+                              String queryString =
+                                  convertToQueryString(formData) + '&';
+                              Logger.log('DATA 2: $queryString',
+                                  level: LogLevel.info);
+                              String payload = AES.encryptAES(
+                                  envMap['RESOURCE_KEY'], queryString);
+                              Logger.log('DATA 3: $payload',
+                                  level: LogLevel.info);
+                              var jsonOutput = convertToJsonString(
+                                  payload, envMap['TRAN_PORTAL_ID']);
+                              Logger.log('UploadData: $jsonOutput',
+                                  level: LogLevel.info);
+                              handlePaymentResponse(jsonOutput);
+                              /////////////////////////////TXN ROUTE/////////////////////////////
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: Container(
+                              width: MediaQuery.of(context).size.width / 15,
+                              height: MediaQuery.of(context).size.height / 25,
+                              padding: const EdgeInsets.all(5),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: isProceedHovered
+                                      ? Colors.blue
+                                      : Colors.green, // Highlight on hover
+                                  width: 1.0,
+                                ),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(5)),
+                                boxShadow: <BoxShadow>[
+                                  BoxShadow(
+                                    color:
+                                        const Color(0xffdf8e33).withAlpha(10),
+                                    offset: const Offset(2, 4),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  )
+                                ],
+                                color: isProceedHovered
+                                    ? Colors.green[50]
+                                    : Colors.white, // Background on hover
+                              ),
+                              child: Text(
+                                'Proceed',
+                                style: TextStyle(
+                                  fontSize: fontSize.smallerFontSize5,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ])
+                else
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor:
+                            Colors.blue, // Set your desired background color
+                        foregroundColor: Colors.white, // Set the text color
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10.0, vertical: 10.0), // Adjust padding
+                        shape: RoundedRectangleBorder(
+                          borderRadius:
+                              BorderRadius.circular(8.0), // Rounded corners
+                        ),
                       ),
-                    ]
-                ): Center(
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    style: TextButton.styleFrom(
-                      backgroundColor: Colors.blue, // Set your desired background color
-                      foregroundColor: Colors.white, // Set the text color
-                      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0), // Adjust padding
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0), // Rounded corners
+                      child: Text(
+                        'Ok',
+                        style: TextStyle(fontSize: fontSize.smallerFontSize6),
                       ),
                     ),
-                    child: Text('Ok',style: TextStyle(fontSize: fontSize.smallerFontSize6),),
                   ),
-                ),
               ],
             );
           },
@@ -1053,10 +1136,13 @@ class _LoginPageState extends State<LoginPage> {
   Widget buildChatBox(BuildContext context) {
     return Positioned(
       right: 5, // Align to the right side with some margin
-      bottom: MediaQuery.of(context).size.height / 15, // Position above the FloatingActionButton
+      bottom: MediaQuery.of(context).size.height /
+          15, // Position above the FloatingActionButton
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
-        height: _isChatBarVisible ? MediaQuery.of(context).size.height / 2 : 0, // Set height to 0 when hidden
+        height: _isChatBarVisible
+            ? MediaQuery.of(context).size.height / 2
+            : 0, // Set height to 0 when hidden
         width: MediaQuery.of(context).size.width / 8, // Adjust width as needed
         decoration: const BoxDecoration(
           color: Colors.white,
@@ -1073,78 +1159,131 @@ class _LoginPageState extends State<LoginPage> {
         ),
         child: _isChatBarVisible
             ? Column(
-          children: [
-            // Chat bar header
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: const BoxDecoration(
-                color: Color(0xFF004426),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(15),
-                  topRight: Radius.circular(15),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    "Chat",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.close, color: Colors.white),
-                    onPressed: () {
-                      setState(() {
-                        _isChatBarVisible = false;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ),
-            // Chat messages area
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(10),
-                children: const [
-                  Text("Welcome to the chat!", style: TextStyle(fontSize: 16)),
-                  // Add more messages here
-                ],
-              ),
-            ),
-            // Input field
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "Type a message",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                  // Chat bar header
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: const BoxDecoration(
+                      color: Color(0xFF004426),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(15),
+                        topRight: Radius.circular(15),
                       ),
                     ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Chat",
+                          style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.close, color: Colors.white),
+                          onPressed: () {
+                            setState(() {
+                              _isChatBarVisible = false;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(width: 10),
-                  IconButton(
-                    icon: const Icon(Icons.send, color: Color(0xFF004426)),
-                    onPressed: () {
-                      // Handle send action here
-                    },
+                  // Chat messages area
+                  Expanded(
+                    child: ListView(
+                      padding: const EdgeInsets.all(10),
+                      children: const [
+                        Text("Welcome to the chat!",
+                            style: TextStyle(fontSize: 16)),
+                        // Add more messages here
+                      ],
+                    ),
+                  ),
+                  // Input field
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: "Type a message",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 15),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        IconButton(
+                          icon:
+                              const Icon(Icons.send, color: Color(0xFF004426)),
+                          onPressed: () {
+                            // Handle send action here
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ],
-              ),
-            ),
-          ],
-        )
+              )
             : const SizedBox.shrink(),
       ),
     );
   }
 
+  Future<void> handlePaymentResponse(var jsonOutput) async {
+    var url = 'http://localhost:9090/proxy/iPay/hostedHTTP';
+    try {
+      final response = await httpService.sendPostRequest(url, jsonOutput);
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        final trandata = data['trandata'];
+        if (trandata != null) {
+          Logger.log('return DATA 1: $trandata', level: LogLevel.info);
+          final decryptedTrandata =
+              AES.decryptAES(envMap['RESOURCE_KEY'], trandata);
+          Logger.log('Decrypted URL && Payment ID: $decryptedTrandata',
+              level: LogLevel.debug);
+          int colonIndex = decryptedTrandata.indexOf(":");
+          String paymentId = decryptedTrandata.substring(0, colonIndex);
+          String redirectUrl = decryptedTrandata.substring(colonIndex + 1);
+          final completeUrl = '$redirectUrl?PaymentID=$paymentId';
+
+          Logger.log('Redirecting to: $completeUrl', level: LogLevel.critical);
+
+          if (kIsWeb) {
+            Logger.log('kIsWeb is true', level: LogLevel.warning);
+            // html.window.open(completeUrl, '_blank');
+            // Open the payment page in a new window/tab and store the reference
+            html.WindowBase? paymentWindow =
+                html.window.open(completeUrl, '_blank');
+            html.window.onMessage.listen((event) {
+              if (event.data == 'paymentWindowClosed') {
+                // Handle payment window closure, e.g., perform some action like closing the page
+                _closePaymentWindow(paymentWindow);
+              }
+            });
+            // html.window.location.assign(completeUrl);
+          } else {
+            Logger.log('kIsWeb is false', level: LogLevel.warning);
+          }
+        } else {
+          Logger.log('Error: "trandata" field not found in response',
+              level: LogLevel.error);
+        }
+      } else {
+        Logger.log('Request failed with status: ${response.statusCode}',
+            level: LogLevel.critical);
+        Logger.log('Response body: ${response.body}', level: LogLevel.error);
+      }
+    } catch (e) {
+      Logger.log('Exception: $e', level: LogLevel.error);
+    }
+  }
   //////////////////////DATA CONVERSION LOGICS //////////////////////
 
   String encryptionPayload(String payload, String encryptionKey) {
@@ -1153,7 +1292,7 @@ class _LoginPageState extends State<LoginPage> {
     final iv = encrypt.IV.fromLength(16); // Initialization Vector
 
     final encrypter =
-    encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.ecb));
+        encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.ecb));
     // Create encrypter
     // final encrypter = encrypt.Encrypter(encrypt.AES(key));
     // Plain text to be encrypted
@@ -1177,7 +1316,7 @@ class _LoginPageState extends State<LoginPage> {
     // final iv = encrypt.IV.fromLength(16);  // Initialization Vector
     // Use CBC mode for encryption
     final encrypter =
-    encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
+        encrypt.Encrypter(encrypt.AES(key, mode: encrypt.AESMode.cbc));
     // Plain text to be encrypted
     final plainText = payload;
     // Encrypting the text
@@ -1231,459 +1370,595 @@ class _LoginPageState extends State<LoginPage> {
 
   //////////////////////DATA CONVERSION LOGICS //////////////////////
 
+  void _performRedirect(BuildContext context, String message) {
+    final url = _extractUrlFromMessage(message);
+    if (url.isNotEmpty) {
+      // Navigate to the new URL or route
+      Navigator.pushReplacementNamed(context, url);
+    }
+  }
+
+  String _extractUrlFromMessage(String message) {
+    Logger.log('APP DATA RECEIVED : $message', level: LogLevel.error);
+    return message; // For now, return the message itself as a placeholder
+  }
+
+  void _closePaymentWindow(html.WindowBase paymentWindow) {
+    Logger.log('$paymentWindow', level: LogLevel.critical);
+    if (paymentWindow.opener != null) {
+      paymentWindow.close(); // This will close the payment window
+      Logger.log("Payment window closed.", level: LogLevel.info);
+    } else {
+      Logger.log("Payment window is already closed or null.",
+          level: LogLevel.warning);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final fontSizes = FontSizes.fromContext(context);
+    // final webSocketProvider = Provider.of<WebSocketProvider>(context);
+    // Listen for WebSocket data and show dialog when received
+    // Set the callback for handling messages from the WebSocket provider
+    final webSocketProvider =
+        Provider.of<WebSocketProvider>(context, listen: false);
+    // Future<void> showDecryptedDataDialog(String decryptedData) async {
+    //   final Map<String, String> dataMap = {};
+    //   decryptedData.split('&').forEach((pair) {
+    //     final split = pair.split('=');
+    //     if (split.length == 2) {
+    //       dataMap[split[0]] = split[1];
+    //     }
+    //   });
+    //
+    //   showDialog(
+    //     context: context,
+    //     builder: (context) {
+    //       return AlertDialog(
+    //         title: const Text('Decrypted Transaction Data'),
+    //         content: SingleChildScrollView(
+    //           child: DataTable(
+    //             columns: const [
+    //               DataColumn(label: Text('Key')),
+    //               DataColumn(label: Text('Value')),
+    //             ],
+    //             rows: dataMap.entries
+    //                 .map(
+    //                   (entry) => DataRow(
+    //                     cells: [
+    //                       DataCell(Text(entry.key)),
+    //                       DataCell(Text(entry.value)),
+    //                     ],
+    //                   ),
+    //                 )
+    //                 .toList(),
+    //           ),
+    //         ),
+    //         actions: [
+    //           TextButton(
+    //             onPressed: () => Navigator.of(context).pop(),
+    //             child: const Text('Close'),
+    //           ),
+    //         ],
+    //       );
+    //     },
+    //   );
+    // }
+
+    // Update WebSocketProvider to use the showDialogCallback
+    // webSocketProvider.showDialogCallback = showDecryptedDataDialog;
+    // Listen to changes and perform navigation if needed
+    // if (webSocketProvider.message.contains('redirect_to_page')) {
+    //   // Perform the redirection if the message indicates to do so
+    //   _performRedirect(context, webSocketProvider.message);
+    // }
+    // Set the callback to handle incoming decrypted data
     return ConstrainedBox(
-        constraints: const BoxConstraints(
-          minWidth: 400.0, // Minimum width
-          minHeight: 600.0, // Minimum height
-        ),
-    child: Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        backgroundColor: Colors.white,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.fiber_smart_record_outlined,
-                  color: const Color(0xFF003323),
-                  size: fontSizes.largerFontSize2,
-                ),
-                Text(
-                  'NextGen Robotics',
-                  style: GoogleFonts.portLligatSans(
-                    fontSize: fontSizes.baseFontSize,
-                    fontWeight: FontWeight.bold,
+      constraints: const BoxConstraints(
+        minWidth: 400.0, // Minimum width
+        minHeight: 600.0, // Minimum height
+      ),
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: false,
+          backgroundColor: Colors.white,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.fiber_smart_record_outlined,
                     color: const Color(0xFF003323),
+                    size: fontSizes.largerFontSize2,
                   ),
+                  Text(
+                    'NextGen Robotics',
+                    style: GoogleFonts.portLligatSans(
+                      fontSize: fontSizes.baseFontSize,
+                      fontWeight: FontWeight.bold,
+                      color: webSocketProvider.isConnected
+                          ? const Color(0xFF003323)
+                          : Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            Flexible(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // SizedBox(
+                    //   width: MediaQuery.of(context).size.width / 4,
+                    //   height: MediaQuery.of(context).size.height/30,
+                    //   child: Center(child: Text('DEAL OF THE DAY : 20% OFF ON ALL ORDERS ABOVE 10000 INR.',style: TextStyle(fontSize: fontSizes.smallerFontSize6, fontStyle: FontStyle.italic, color: const Color(0xFF003323)),)),
+                    // ),
+                    _buildNavItem(fontSizes, 'HOME'),
+                    _buildNavItem(fontSizes, 'PRODUCTS'),
+                    _buildNavItem(fontSizes, 'TECH'),
+                    _buildNavItem(fontSizes, 'SOLUTIONS'),
+                    _buildNavItem(fontSizes, 'VIDEOS'),
+                    _buildNavItem(fontSizes, 'ABOUT US'),
+                    Container(
+                      width: MediaQuery.of(context).size.width / 6,
+                      height: MediaQuery.of(context).size.height / 30,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: const Color(0xFF003323), // Outline color
+                          width: 1, // Outline thickness
+                        ),
+                        borderRadius:
+                            BorderRadius.circular(5.0), // Rounded corners
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Container(
+                              alignment: Alignment
+                                  .center, // Centers content inside the container
+                              child: TextFormField(
+                                decoration: InputDecoration(
+                                  hintText: 'Search..',
+                                  hintStyle: TextStyle(
+                                      fontSize: fontSizes.smallerFontSize4),
+                                  isDense:
+                                      true, // Ensures consistent alignment for small spaces
+                                  contentPadding: const EdgeInsets.fromLTRB(
+                                      10, 0, 0, 0), // Avoid extra padding
+                                  border: InputBorder
+                                      .none, // Removes default TextFormField border
+                                ),
+                                textAlignVertical: TextAlignVertical
+                                    .center, // Vertically center-align text
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'All',
+                            style: TextStyle(
+                                color: const Color(0xFF003323),
+                                fontSize: fontSizes.smallerFontSize4),
+                          ),
+                          const Icon(Icons.arrow_drop_down,
+                              color: Color(0xFF003323)),
+                          const SizedBox(width: 5.0),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF003323),
+                              borderRadius: BorderRadius.circular(4.0),
+                            ),
+                            child: Center(
+                              child: IconButton(
+                                icon: Icon(Icons.search,
+                                    color: Colors.white,
+                                    size: fontSizes.smallerFontSize4),
+                                onPressed: null,
+                              ),
+                            ),
+                          ),
+                          // const SizedBox(width: 1.0),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 30,
+                      height: MediaQuery.of(context).size.height / 30,
+                      child: TextButton(
+                        onPressed: () {
+                          _showCartDetailsDialog(context,
+                              fontSizes); // Show the cart details dialog
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: const Color(0xFF003323),
+                          shape: const CircleBorder(),
+                        ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            const Icon(Icons.shopping_cart,
+                                color: Colors.white),
+                            Positioned(
+                              top: 0,
+                              right: 0,
+                              child: Container(
+                                padding: const EdgeInsets.all(1),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                                child: Text(
+                                  cartCount.toString(),
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: fontSizes.smallerFontSize5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 30,
+                      height: MediaQuery.of(context).size.height / 30,
+                      child: TextButton(
+                        onPressed: () {
+                          _showLoginDialog(
+                              context); // Trigger the pop-up dialog
+                        },
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white, // Text color
+                          backgroundColor: const Color(0xFF003323),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                        ),
+                        child: Text(
+                          'LOGIN',
+                          style:
+                              TextStyle(fontSize: fontSizes.smallerFontSize6),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: MediaQuery.of(context).size.width / 500),
+                  ],
                 ),
-              ],
+              ),
             ),
           ],
         ),
-        actions: [
-          Flexible(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  // SizedBox(
-                  //   width: MediaQuery.of(context).size.width / 4,
-                  //   height: MediaQuery.of(context).size.height/30,
-                  //   child: Center(child: Text('DEAL OF THE DAY : 20% OFF ON ALL ORDERS ABOVE 10000 INR.',style: TextStyle(fontSize: fontSizes.smallerFontSize6, fontStyle: FontStyle.italic, color: const Color(0xFF003323)),)),
-                  // ),
-                  _buildNavItem(fontSizes,'HOME'),
-                  _buildNavItem(fontSizes,'PRODUCTS'),
-                  _buildNavItem(fontSizes,'TECH'),
-                  _buildNavItem(fontSizes,'SOLUTIONS'),
-                  _buildNavItem(fontSizes,'VIDEOS'),
-                  _buildNavItem(fontSizes,'ABOUT US'),
-                  Container(
-                    width: MediaQuery.of(context).size.width / 6,
-                    height: MediaQuery.of(context).size.height / 30,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: const Color(0xFF003323), // Outline color
-                        width: 1, // Outline thickness
-                      ),
-                      borderRadius: BorderRadius.circular(5.0), // Rounded corners
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            alignment: Alignment.center, // Centers content inside the container
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                hintText: 'Search..',
-                                hintStyle: TextStyle(fontSize: fontSizes.smallerFontSize4),
-                                isDense: true, // Ensures consistent alignment for small spaces
-                                contentPadding: const EdgeInsets.fromLTRB(10, 0, 0, 0), // Avoid extra padding
-                                border: InputBorder.none, // Removes default TextFormField border
-                              ),
-                              textAlignVertical: TextAlignVertical.center, // Vertically center-align text
-                            ),
-                          ),
-                        ),
-                        Text(
-                          'All',
-                          style: TextStyle(color: const Color(0xFF003323), fontSize: fontSizes.smallerFontSize4),
-                        ),
-                        const Icon(Icons.arrow_drop_down, color: Color(0xFF003323)),
-                        const SizedBox(width: 5.0),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF003323),
-                            borderRadius: BorderRadius.circular(4.0),
-                          ),
-                          child: Center(
-                            child:
-                          IconButton(
-                            icon: Icon(Icons.search, color: Colors.white, size: fontSizes.smallerFontSize4),
-                            onPressed: null,
-                          ),
-                          ),
-                        ),
-                        // const SizedBox(width: 1.0),
-                      ],
+        body: Stack(
+          children: [
+            Center(
+                child: Column(
+              children: [
+                Container(
+                  height: MediaQuery.of(context).size.height / 25,
+                  width: double.infinity,
+                  color: const Color(0xFF003323),
+                  child: Center(
+                    child: Text(
+                      'Get 20% Off for your first order above 1500 AED.',
+                      style: TextStyle(
+                          fontSize: fontSizes.smallerFontSize4,
+                          color: Colors.white),
                     ),
                   ),
-                  SizedBox(
-              width: MediaQuery.of(context).size.width / 30,
-              height: MediaQuery.of(context).size.height / 30,
-              child: TextButton(
-                onPressed: () {
-                  _showCartDetailsDialog(context, fontSizes); // Show the cart details dialog
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: const Color(0xFF003323),
-                  shape: const CircleBorder(
-                  ),
                 ),
-                child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                    const Icon(Icons.shopping_cart, color: Colors.white),
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: Container(
-                      padding: const EdgeInsets.all(1),
-                      decoration: BoxDecoration(
-                      color: Colors.red,
-                      borderRadius: BorderRadius.circular(2),
-                ),
-                child: Text(
-                  cartCount.toString(),
-                  style: TextStyle(
-                  color: Colors.white,
-                  fontSize: fontSizes.smallerFontSize5,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ),),
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 30,
-                    height: MediaQuery.of(context).size.height/30,
-                    child: TextButton(
-                      onPressed: () {
-                        _showLoginDialog(context); // Trigger the pop-up dialog
-                      },
-                      style: TextButton.styleFrom(
-                        foregroundColor: Colors.white, // Text color
-                        backgroundColor: const Color(0xFF003323),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
+                SizedBox(height: MediaQuery.of(context).size.height / 1000),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height / 1.75,
+                      width: MediaQuery.of(context).size.width / 6,
+                      color: const Color(0xFF003323),
+                      child: ListView.separated(
+                        itemCount:
+                            categories.length + 1, // Add 1 for the static box
+                        separatorBuilder: (context, index) => const Divider(
+                          color: Colors.white,
+                          height: 0.1,
                         ),
-                      ),
-                      child: Text('LOGIN', style: TextStyle(fontSize: fontSizes.smallerFontSize6),),
-                    ),
-                  ),
-                  SizedBox(width: MediaQuery.of(context).size.width / 500),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: [
-          Center(child: Column(
-            children: [
-              Container(
-                height: MediaQuery.of(context).size.height/25,
-                width: double.infinity,
-                color: const Color(0xFF003323),
-                child: Center(child: Text('Get 20% Off for your first order above 1500 AED.', style: TextStyle(fontSize: fontSizes.smallerFontSize4, color: Colors.white),),),
-              ),
-              SizedBox(height: MediaQuery.of(context).size.height / 1000),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height / 1.75,
-                    width: MediaQuery.of(context).size.width / 6,
-                    color: const Color(0xFF003323),
-                    child: ListView.separated(
-                      itemCount: categories.length + 1, // Add 1 for the static box
-                      separatorBuilder: (context, index) => const Divider(
-                        color: Colors.white,
-                        height: 0.1,
-                      ),
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          // Static black box with text
-                          return Container(
-                            color: Colors.black,
-                            padding: const EdgeInsets.all(1.0),
-                            child: Center(
-                              child: Text(
-                                'ITEMS',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: fontSizes.smallerFontSize4,
-                                ),
-                              ),
-                            ),
-                          );
-                        } else {
-                          // Dynamic list items (adjust index by subtracting 1)
-                          return ListTile(
-                            title: Text(
-                              categories[index - 1],
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: fontSizes.smallerFontSize5,
-                              ),
-                            ),
-                            trailing: (index - 1) == 4 // Adding a SALE tag for 'MOTORS'
-                                ? const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  "SALE",
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            // Static black box with text
+                            return Container(
+                              color: Colors.black,
+                              padding: const EdgeInsets.all(1.0),
+                              child: Center(
+                                child: Text(
+                                  'ITEMS',
                                   style: TextStyle(
-                                    color: Colors.red,
+                                    color: Colors.white,
+                                    fontSize: fontSizes.smallerFontSize4,
                                   ),
                                 ),
-                                Icon(Icons.arrow_forward_ios, color: Colors.white),
-                              ],
-                            )
-                                : const Icon(Icons.arrow_forward_ios, color: Colors.white),
-                            onTap: () {
-                              // Handle menu tap
-                            },
-                          );
-                        }
-                      },
-                    ),
-                  ),//LEFT MENU
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 1.75,
-                    width: MediaQuery.of(context).size.width / 1.5,
-                    child: PageView.builder(
-                      controller: _pageController,
-                      itemCount: _imagePaths.length,
-                      itemBuilder: (context, index) {
-                        return Image.asset(
-                          _imagePaths[index],
-                          fit: BoxFit.cover,
-                          width: double.maxFinite,
-                        );
-                      },
-                    ),
-                  ),//CENTER IMAGE SCROLL
-                  Container(
-                    height: MediaQuery.of(context).size.height / 1.75,
-                    width: MediaQuery.of(context).size.width / 6,
-                    color: const Color(0xFF003323),
-                    child: ListView.separated(
-                      itemCount: featuredProducts.length + 1, // Add 1 for the static box
-                      separatorBuilder: (context, index) => const Divider(
-                        color: Colors.white,
-                        height: 0.1,
-                      ),
-                      itemBuilder: (context, index) {
-                        if (index == 0) {
-                          // Static black box with text
-                          return Container(
-                            color: Colors.black,
-                            padding: const EdgeInsets.all(1.0),
-                            child: Center(
-                              child: Text(
-                                'FEATURED PRODUCTS',
+                              ),
+                            );
+                          } else {
+                            // Dynamic list items (adjust index by subtracting 1)
+                            return ListTile(
+                              title: Text(
+                                categories[index - 1],
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: fontSizes.smallerFontSize4,
+                                  fontSize: fontSizes.smallerFontSize5,
                                 ),
                               ),
-                            ),
-                          );
-                        } else {
-                          // Dynamic list items (adjust index by subtracting 1)
-                          return ListTile(
-                            title: Text(
-                              featuredProducts[index - 1],
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: fontSizes.smallerFontSize5,
-                              ),
-                            ),
-                            onTap: () {
-                              // Handle menu tap
-                            },
-                          );
-                        }
-                      },
-                    ),
-                  ),//RIGHT MENU
-                ],
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height / 10,
-                    child: GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 5, // 6 columns
-                        crossAxisSpacing: 1.0, // Spacing between cards horizontally
-                        mainAxisSpacing: 1.0, // Spacing between cards vertically
-                        childAspectRatio: 1.75, // Adjusted to make the cards smaller
-                      ),
-                      itemCount: 20, // Number of items to display
-                      itemBuilder: (context, index) {
-                        return Card(
-                          elevation: 10, // Slightly reduced elevation for a softer effect
-                          child: Stack(
-                            fit: StackFit.loose, // Ensure the stack takes the full card space
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5), // Smaller rounded corners for the image as well
-                                  image: DecorationImage(
-                                    image: AssetImage('assets/itemImages/${index + 1}.jpg'),
-                                    fit: BoxFit.cover, // Ensures the image covers the entire container
-                                  ),
-                                  border: Border.all( // Adding border to the container
-                                    color: Colors.blue, // Dark green border
-                                    width: 1.0, // Border width
-                                  ),
-                                ),
-                              ),
-                              Positioned.fill(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Colors.black.withOpacity(0.6),
-                                        Colors.black.withOpacity(0.1),
+                              trailing: (index - 1) ==
+                                      4 // Adding a SALE tag for 'MOTORS'
+                                  ? const Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          "SALE",
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                        Icon(Icons.arrow_forward_ios,
+                                            color: Colors.white),
                                       ],
-                                      begin: Alignment.bottomCenter,
-                                      end: Alignment.topCenter,
-                                    ),
+                                    )
+                                  : const Icon(Icons.arrow_forward_ios,
+                                      color: Colors.white),
+                              onTap: () {
+                                // Handle menu tap
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ), //LEFT MENU
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height / 1.75,
+                      width: MediaQuery.of(context).size.width / 1.5,
+                      child: PageView.builder(
+                        controller: _pageController,
+                        itemCount: _imagePaths.length,
+                        itemBuilder: (context, index) {
+                          return Image.asset(
+                            _imagePaths[index],
+                            fit: BoxFit.cover,
+                            width: double.maxFinite,
+                          );
+                        },
+                      ),
+                    ), //CENTER IMAGE SCROLL
+                    Container(
+                      height: MediaQuery.of(context).size.height / 1.75,
+                      width: MediaQuery.of(context).size.width / 6,
+                      color: const Color(0xFF003323),
+                      child: ListView.separated(
+                        itemCount: featuredProducts.length +
+                            1, // Add 1 for the static box
+                        separatorBuilder: (context, index) => const Divider(
+                          color: Colors.white,
+                          height: 0.1,
+                        ),
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            // Static black box with text
+                            return Container(
+                              color: Colors.black,
+                              padding: const EdgeInsets.all(1.0),
+                              child: Center(
+                                child: Text(
+                                  'FEATURED PRODUCTS',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: fontSizes.smallerFontSize4,
                                   ),
                                 ),
                               ),
-                              Positioned(
-                                bottom:  10,
-                                left: 10,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      cartItems[index], // Product title
-                                      style: GoogleFonts.roboto( // Change the font to Roboto (you can choose other fonts here)
-                                        color: Colors.white,
-                                        fontSize: fontSizes.smallerFontSize4, // Slightly smaller text for the title
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    Text(
-                                      'AED ${cartPricesAED[index].toStringAsFixed(2)}', // Display price in AED with two decimal places
-                                      style: TextStyle(
-                                        color: Colors.yellow,
-                                        fontSize: fontSizes.smallerFontSize4, // Slightly smaller price text
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Row(
-                                      children: List.generate(5, (starIndex) {
-                                        return Icon(
-                                          Icons.star,
-                                          color: starIndex < ratings[index] ? Colors.yellow : Colors.grey,
-                                          size: fontSizes.smallerFontSize6,
-                                        );
-                                      }),
-                                    ),
-                                  ],
+                            );
+                          } else {
+                            // Dynamic list items (adjust index by subtracting 1)
+                            return ListTile(
+                              title: Text(
+                                featuredProducts[index - 1],
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: fontSizes.smallerFontSize5,
                                 ),
                               ),
-                              Positioned(
-                                bottom: 10,
-                                right: 10,
-                                child: Row(
-                                  children: [
-                                    // Minus Button
-                                    IconButton(
-                                      icon: const Icon(Icons.remove, color: Colors.yellow),
-                                      onPressed: () {
-                                        setState(() {
-                                          if (itemCounts[index] > 0) {
-                                            itemCounts[index]--; // Decrease item count
-                                            cartCount--; // Decrease total cart count
-                                          }
-                                        });
-                                      },
+                              onTap: () {
+                                // Handle menu tap
+                              },
+                            );
+                          }
+                        },
+                      ),
+                    ), //RIGHT MENU
+                  ],
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).size.height / 10,
+                      child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 5, // 6 columns
+                          crossAxisSpacing:
+                              1.0, // Spacing between cards horizontally
+                          mainAxisSpacing:
+                              1.0, // Spacing between cards vertically
+                          childAspectRatio:
+                              1.75, // Adjusted to make the cards smaller
+                        ),
+                        itemCount: 20, // Number of items to display
+                        itemBuilder: (context, index) {
+                          return Card(
+                            elevation:
+                                10, // Slightly reduced elevation for a softer effect
+                            child: Stack(
+                              fit: StackFit
+                                  .loose, // Ensure the stack takes the full card space
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(
+                                        5), // Smaller rounded corners for the image as well
+                                    image: DecorationImage(
+                                      image: AssetImage(
+                                          'assets/itemImages/${index + 1}.jpg'),
+                                      fit: BoxFit
+                                          .cover, // Ensures the image covers the entire container
                                     ),
-                                    // Display Item Count
-                                    Text(
-                                      '${itemCounts[index]}',
-                                      style: TextStyle(
-                                        fontSize: fontSizes.smallerFontSize4,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.yellow,
+                                    border: Border.all(
+                                      // Adding border to the container
+                                      color: Colors.blue, // Dark green border
+                                      width: 1.0, // Border width
+                                    ),
+                                  ),
+                                ),
+                                Positioned.fill(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          Colors.black.withOpacity(0.6),
+                                          Colors.black.withOpacity(0.1),
+                                        ],
+                                        begin: Alignment.bottomCenter,
+                                        end: Alignment.topCenter,
                                       ),
                                     ),
-                                    // Plus Button
-                                    IconButton(
-                                      icon: const Icon(Icons.add, color: Colors.yellow),
-                                      onPressed: () {
-                                        setState(() {
-                                          itemCounts[index]++; // Increase item count
-                                          cartCount++; // Increase total cart count
-                                        });
-                                      },
-                                    ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
+                                Positioned(
+                                  bottom: 10,
+                                  left: 10,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        cartItems[index], // Product title
+                                        style: GoogleFonts.roboto(
+                                          // Change the font to Roboto (you can choose other fonts here)
+                                          color: Colors.white,
+                                          fontSize: fontSizes
+                                              .smallerFontSize4, // Slightly smaller text for the title
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      Text(
+                                        'AED ${cartPricesAED[index].toStringAsFixed(2)}', // Display price in AED with two decimal places
+                                        style: TextStyle(
+                                          color: Colors.yellow,
+                                          fontSize: fontSizes
+                                              .smallerFontSize4, // Slightly smaller price text
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Row(
+                                        children: List.generate(5, (starIndex) {
+                                          return Icon(
+                                            Icons.star,
+                                            color: starIndex < ratings[index]
+                                                ? Colors.yellow
+                                                : Colors.grey,
+                                            size: fontSizes.smallerFontSize6,
+                                          );
+                                        }),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 10,
+                                  right: 10,
+                                  child: Row(
+                                    children: [
+                                      // Minus Button
+                                      IconButton(
+                                        icon: const Icon(Icons.remove,
+                                            color: Colors.yellow),
+                                        onPressed: () {
+                                          setState(() {
+                                            if (itemCounts[index] > 0) {
+                                              itemCounts[
+                                                  index]--; // Decrease item count
+                                              cartCount--; // Decrease total cart count
+                                            }
+                                          });
+                                        },
+                                      ),
+                                      // Display Item Count
+                                      Text(
+                                        '${itemCounts[index]}',
+                                        style: TextStyle(
+                                          fontSize: fontSizes.smallerFontSize4,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.yellow,
+                                        ),
+                                      ),
+                                      // Plus Button
+                                      IconButton(
+                                        icon: const Icon(Icons.add,
+                                            color: Colors.yellow),
+                                        onPressed: () {
+                                          setState(() {
+                                            itemCounts[
+                                                index]++; // Increase item count
+                                            cartCount++; // Increase total cart count
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
+              ],
+            )),
+            if (_isChatBarVisible) buildChatBox(context),
+          ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+            onPressed: () {
+              setState(() {
+                _isChatBarVisible = !_isChatBarVisible;
+              });
+            },
+            backgroundColor: const Color(0xFF003323),
+            label: Text(
+              "Chat",
+              style: TextStyle(
+                  color: Colors.white, fontSize: fontSizes.smallerFontSize4),
+            ),
+            icon: const Icon(Icons.chat, color: Colors.white),
+            elevation: 5,
+            hoverColor: const Color(0xFF004426),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(40),
+                bottomRight: Radius.circular(40),
               ),
-            ],
-          )),
-          if (_isChatBarVisible) buildChatBox(context),
-        ],
+            )),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          setState(() {
-            _isChatBarVisible = !_isChatBarVisible;
-          });
-        },
-        backgroundColor: const Color(0xFF003323),
-        label: Text("Chat", style: TextStyle(color: Colors.white, fontSize: fontSizes.smallerFontSize4),),
-        icon: const Icon(Icons.chat, color: Colors.white),
-        elevation: 5,
-        hoverColor: const Color(0xFF004426),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(40),
-            bottomRight: Radius.circular(40),
-          ),
-        )
-      ),
-    ),
     );
   }
 }
