@@ -1056,11 +1056,21 @@ class _LoginPageState extends State<LoginPage> {
                                   envMap['RESOURCE_KEY'], queryString);
                               Logger.log('DATA 3: $payload',
                                   level: LogLevel.info);
-                              var jsonOutput = convertToJsonString(
+                              var jsonOutput = AES.convertToJsonString(
                                   payload, envMap['TRAN_PORTAL_ID']);
                               Logger.log('UploadData: $jsonOutput',
                                   level: LogLevel.info);
-                              handlePaymentResponse(jsonOutput);
+                              Map<String, dynamic> dbData = {
+                                'TRANSACTION_ID': formData['trackId'],
+                                'AMOUNT': double.parse(formData['amt']!),
+                                'CURRENCY': envMap['CURRENCY'] ??
+                                    'AED', // Default to 'USD' if not provided
+                                'TRANSACTION_DATE':
+                                    DateTime.now().toIso8601String(),
+                                'PAYMENT_ID': '',
+                                'PAYMENT_URL': ''
+                              };
+                              handlePaymentResponse(jsonOutput, dbData);
                               /////////////////////////////TXN ROUTE/////////////////////////////
                               Navigator.of(context).pop(); // Close the dialog
                             },
@@ -1235,12 +1245,15 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Future<void> handlePaymentResponse(var jsonOutput) async {
+  Future<void> handlePaymentResponse(var jsonOutput, var dbData) async {
     var url = 'http://localhost:9090/proxy/iPay/hostedHTTP';
+    // var url = 'http://wlpgtest.pinelabs.com:9090/proxy/iPay/hostedHTTP';
+    Logger.log('$jsonOutput', level: LogLevel.critical);
     try {
       final response = await httpService.sendPostRequest(url, jsonOutput);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
+        Logger.log('return DATA 0: $data', level: LogLevel.info);
         final trandata = data['trandata'];
         if (trandata != null) {
           Logger.log('return DATA 1: $trandata', level: LogLevel.info);
@@ -1252,6 +1265,17 @@ class _LoginPageState extends State<LoginPage> {
           String paymentId = decryptedTrandata.substring(0, colonIndex);
           String redirectUrl = decryptedTrandata.substring(colonIndex + 1);
           final completeUrl = '$redirectUrl?PaymentID=$paymentId';
+
+          //insert into database
+          dbData['PAYMENT_ID'] = paymentId;
+          dbData['PAYMENT_URL'] = redirectUrl;
+          Logger.log('DB DATA: $dbData', level: LogLevel.debug);
+          const url = 'http://localhost:9090/insertERPtxn';
+          final response = await httpService.sendPostRequest(
+            url,
+            jsonEncode(dbData), // Serialize dbData into JSON
+          );
+          Logger.log('DB INSERT STATUS = $response', level: LogLevel.critical);
 
           Logger.log('Redirecting to: $completeUrl', level: LogLevel.critical);
 

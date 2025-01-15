@@ -64,6 +64,7 @@ class WebSocketProvider with ChangeNotifier {
   void _handleMessage(dynamic data) {
     Logger.log('WEBSOCKET MESSAGE RECEIVED.', level: LogLevel.debug);
     final parsedMessage = _parseJsonMessage(data);
+    Logger.log('${data}', level: LogLevel.error);
     Logger.log('${parsedMessage['trandata']}', level: LogLevel.debug);
 
     if (parsedMessage['trackId'] == _lastMessageId) {
