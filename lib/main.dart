@@ -10,7 +10,8 @@ import 'websocket_provider.dart';
 import 'login_page.dart';
 import 'response.dart';
 
-void main() {
+void main() async {
+  await dotenv.load(); // Ensure environment variables are loaded
   runApp(
     MultiProvider(
       providers: [
@@ -18,7 +19,7 @@ void main() {
           create: (context) => WebSocketProvider(
               showDialogCallback: showDecryptedDataDialog,
               navigatorKey: navigatorKey),
-          lazy: false, // Ensure the provider initializes immediately
+          lazy: false, // Initialize WebSocketProvider immediately
         ),
       ],
       child: MainApp(),
@@ -31,12 +32,13 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Map<String, dynamic> envMap = dotenv.env;
 final httpService = HttpService();
 
-// Callback function to show decrypted data in a dialog
+/// Callback function to show decrypted data in a dialog
 Future<void> showDecryptedDataDialog(
     BuildContext context, String decryptedTrandata) async {
-  //CALLING STAUS CHECK API AND VERIFY THE STATUS//
+  // Log the start of the process
   Logger.log('STATUS CHECK API STARTED.', level: LogLevel.info);
   Logger.log(decryptedTrandata, level: LogLevel.critical);
+
   // Parse the decryptedTrandata string into key-value pairs
   final dataMap = Map.fromEntries(
     Uri.decodeFull(decryptedTrandata)
@@ -47,7 +49,8 @@ Future<void> showDecryptedDataDialog(
       return MapEntry(parts[0], parts.length > 1 ? parts[1] : '');
     }),
   );
-  // Create a new Map with the required fields and order
+
+  // Create a new Map with the required fields
   final updatedData = {
     'amt': dataMap['amt'] ?? '',
     'action': '8', // Static value
@@ -62,39 +65,52 @@ Future<void> showDecryptedDataDialog(
     'id': 'ipaydxb002', // Static value
     'password': 'Admin123...', // Static value
   };
+
   // Reconstruct the string
   final result =
       updatedData.entries.map((e) => '${e.key}=${e.value}').join('&');
   final updateInqData = result.endsWith('&') ? result : '$result&';
+
   Logger.log(updateInqData, level: LogLevel.critical);
+
+  // Encrypt the data and prepare payload
   String payload = AES.encryptAES(envMap['RESOURCE_KEY'], updateInqData);
   Logger.log(payload, level: LogLevel.error);
+
   var jsonOutput = AES.convertToJsonString(payload, envMap['TRAN_PORTAL_ID']);
   Logger.log('InquiryUploadData: $jsonOutput', level: LogLevel.info);
+
   var url = 'http://localhost:9090/proxy/iPay/TranportalTcpip.htm';
   try {
     final response = await httpService.sendPostRequest(url, jsonOutput);
-    Logger.log('INQUIRY RESPONSE : $response', level: LogLevel.debug);
+    Logger.log('INQUIRY RESPONSE: $response', level: LogLevel.debug);
   } catch (e) {
-    Logger.log('EXCEPTION CALLING STATUS API.$e', level: LogLevel.error);
+    Logger.log('EXCEPTION CALLING STATUS API: $e', level: LogLevel.error);
   }
+
   Logger.log('STATUS CHECK API COMPLETED.', level: LogLevel.info);
-  //CALLING STAUS CHECK API AND VERIFY THE STATUS//
-  var stausMsg = '';
+
+  // Determine payment status and corresponding message
+  String statusMsg;
   var paymentStatus = await accessParameter(decryptedTrandata, 'result');
-  Logger.log('PAYMENT STATUS IN MAIN : $paymentStatus', level: LogLevel.error);
+  Logger.log('PAYMENT STATUS IN MAIN: $paymentStatus', level: LogLevel.error);
+
   if (paymentStatus == 'CAPTURED') {
-    stausMsg = 'SUCCESS';
+    statusMsg = 'SUCCESS';
+  } else if (paymentStatus == 'APPROVED') {
+    statusMsg = 'APPROVED';
   } else {
-    stausMsg = 'FAILED';
+    statusMsg = 'FAILED';
   }
+
+  // Show dialog with the relevant status
   showDialog(
     barrierDismissible: false,
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
         title: Text(
-          'PAYMENT $stausMsg',
+          _getTitle(statusMsg),
           textAlign: TextAlign.center,
         ),
         content: SingleChildScrollView(
@@ -126,7 +142,14 @@ Future<void> showDecryptedDataDialog(
   );
 }
 
-// Helper function to parse decrypted data
+// Helper function to determine the dialog title
+String _getTitle(String statusMsg) {
+  return (statusMsg == 'APPROVED')
+      ? 'AUTHENTICATION $statusMsg'
+      : 'PAYMENT $statusMsg';
+}
+
+// Helper function to parse key-value pairs
 Map<String, String> _parseKeyValuePairs(String data) {
   final Map<String, String> result = {};
   final pairs = data.split('&');
@@ -141,34 +164,33 @@ Map<String, String> _parseKeyValuePairs(String data) {
   return result;
 }
 
+// Access parameter value from decrypted data
 Future<String> accessParameter(
     String decryptedTrandata, String parameter) async {
-  // First, split the decryptedTrandata into key-value pairs
+  // Parse key-value pairs
   Map<String, String> params = {};
-  // Split the string by '&' to get individual key-value pairs
   var pairs = decryptedTrandata.split('&');
   for (var pair in pairs) {
     var keyValue = pair.split('=');
     if (keyValue.length == 2) {
-      params[keyValue[0]] =
-          Uri.decodeComponent(keyValue[1]); // Decoding URL-encoded values
+      params[keyValue[0]] = Uri.decodeComponent(keyValue[1]);
     }
   }
-//////////////////////////////////////////////////
+
   Logger.log('INSERTING PAYMENT DATA TO DB: $params', level: LogLevel.debug);
+
   const url = 'http://localhost:9090/insertPaymentData';
-  final httpService = HttpService();
   try {
     final response = await httpService.sendPostRequest(
       url,
-      jsonEncode(params), // Serialize params into JSON
+      jsonEncode(params),
     );
     Logger.log('DB INSERT STATUS = ${response.statusCode}',
         level: LogLevel.critical);
   } catch (e) {
     Logger.log('ERROR IN DB INSERT: $e', level: LogLevel.error);
   }
-  ///////////////////////////////////////////////////
+
   String? result = params[parameter];
   if (result != null) {
     Logger.log('PAYMENT STATUS: $result', level: LogLevel.info);
@@ -185,7 +207,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      navigatorKey: navigatorKey, // Assign global navigator key
+      navigatorKey: navigatorKey,
       title: "NextGen Robotics",
       theme: ThemeData(
         scaffoldBackgroundColor: Colors.white,

@@ -360,6 +360,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isChatBarVisible = false;
   bool isCancelHovered = false;
   bool isProceedHovered = false;
+  bool isAuthdHovered = false;
   html.Window? paymentWindow;
 
   @override
@@ -1102,7 +1103,90 @@ class _LoginPageState extends State<LoginPage> {
                                     : Colors.white, // Background on hover
                               ),
                               child: Text(
-                                'Proceed',
+                                'Pay',
+                                style: TextStyle(
+                                  fontSize: fontSize.smallerFontSize5,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        MouseRegion(
+                          onEnter: (event) =>
+                              setState(() => isAuthdHovered = true),
+                          onExit: (event) =>
+                              setState(() => isAuthdHovered = false),
+                          child: InkWell(
+                            onTap: () async {
+                              resetItemCounts();
+                              /////////////////////////////TXN ROUTE/////////////////////////////
+                              formData['id'] = envMap['TRAN_PORTAL_ID'];
+                              formData['password'] =
+                                  envMap['TRAN_PORTAL_PASSWORD'];
+                              formData['amt'] =
+                                  totalAmount.toStringAsFixed(2).toString();
+                              formData['action'] = '4';
+                              formData['trackId'] = generateTrackId();
+                              Logger.log('DATA 1: $formData',
+                                  level: LogLevel.info);
+                              String queryString =
+                                  convertToQueryString(formData) + '&';
+                              Logger.log('DATA 2: $queryString',
+                                  level: LogLevel.info);
+                              String payload = AES.encryptAES(
+                                  envMap['RESOURCE_KEY'], queryString);
+                              Logger.log('DATA 3: $payload',
+                                  level: LogLevel.info);
+                              var jsonOutput = AES.convertToJsonString(
+                                  payload, envMap['TRAN_PORTAL_ID']);
+                              Logger.log('UploadData: $jsonOutput',
+                                  level: LogLevel.info);
+                              Map<String, dynamic> dbData = {
+                                'TRANSACTION_ID': formData['trackId'],
+                                'AMOUNT': double.parse(formData['amt']!),
+                                'CURRENCY': envMap['CURRENCY'] ??
+                                    'AED', // Default to 'USD' if not provided
+                                'TRANSACTION_DATE':
+                                    DateTime.now().toIso8601String(),
+                                'PAYMENT_ID': '',
+                                'PAYMENT_URL': ''
+                              };
+                              handlePaymentResponse(jsonOutput, dbData);
+                              /////////////////////////////TXN ROUTE/////////////////////////////
+                              Navigator.of(context).pop(); // Close the dialog
+                            },
+                            child: Container(
+                              width: MediaQuery.of(context).size.width / 15,
+                              height: MediaQuery.of(context).size.height / 25,
+                              padding: const EdgeInsets.all(5),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: isAuthdHovered
+                                      ? Colors.blue
+                                      : Colors
+                                          .indigoAccent, // Highlight on hover
+                                  width: 1.0,
+                                ),
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(5)),
+                                boxShadow: <BoxShadow>[
+                                  BoxShadow(
+                                    color:
+                                        const Color(0xffdf8e33).withAlpha(10),
+                                    offset: const Offset(2, 4),
+                                    blurRadius: 10,
+                                    spreadRadius: 2,
+                                  )
+                                ],
+                                color: isAuthdHovered
+                                    ? Colors.blue[50]
+                                    : Colors.white, // Background on hover
+                              ),
+                              child: Text(
+                                'Auth',
                                 style: TextStyle(
                                   fontSize: fontSize.smallerFontSize5,
                                   color: Colors.black,
