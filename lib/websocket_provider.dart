@@ -152,7 +152,7 @@ class WebSocketProvider with ChangeNotifier {
         await dotenv.load();
       }
       envMap = dotenv.env; // Directly get the env variables as a Map
-      Logger.log('Loaded ENV data: $envMap', level: LogLevel.info);
+      // Logger.log('Loaded ENV data: $envMap', level: LogLevel.info);
     } catch (e) {
       Logger.log(e.toString(), level: LogLevel.error);
       Logger.log('ERROR LOADING ENV FILE: ${e.toString()}',

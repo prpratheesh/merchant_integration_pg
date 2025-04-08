@@ -17,6 +17,7 @@ import 'dart:io' as io;
 import 'logger.dart';
 import 'dart:html' as html;
 import 'package:provider/provider.dart';
+import 'master_card_model.dart';
 import 'websocket_provider.dart';
 
 class LoginPage extends StatefulWidget {
@@ -344,24 +345,33 @@ class _LoginPageState extends State<LoginPage> {
     'amt': '65.00',
     'action': '1',
     'trackId': 'RnxkiOvuj4VWjDykkC',
-    'udf1': 'test udf1',
-    'udf2': 'test udf2',
+    'udf1': 'PRATHEESH',
+    'udf2': '0529716497',
     'udf3': 'test udf3',
     'udf4': 'test udf4',
     'udf5': 'test udf5',
     'currencycode': '784',
-    'id': 'ipaydxb002',
-    'password': 'Admin123...',
+    'id': 'ipay90ce0bff79d54',
+    'password': '122N14#2l507122',
   };
   var envData = '';
   Map<String, dynamic> envMap = {};
   final httpService = HttpService();
   String platformInfo = '';
   bool _isChatBarVisible = false;
-  bool isCancelHovered = false;
-  bool isProceedHovered = false;
-  bool isAuthdHovered = false;
+  bool isCancelHovered_WL = false;
+  bool isProceedHovered_WL = false;
+  bool isAuthdHovered_WL = false;
+
+  bool isCancelHovered_MPGS = false;
+  bool isProceedHovered_MPGS = false;
+  bool isAuthdHovered_MPGS = false;
+
+  bool isCancelHovered_CYBS = false;
+  bool isProceedHovered_CYBS = false;
+  bool isAuthdHovered_CYBS = false;
   html.Window? paymentWindow;
+  var MasterCard;
 
   @override
   void initState() {
@@ -389,6 +399,28 @@ class _LoginPageState extends State<LoginPage> {
         .join();
   }
 
+  // Define the function BEFORE it is used
+  MPGS createMasterCardFromEnv() {
+    return MPGS(
+      host: dotenv.env['HOST'] ?? '',
+      merchantId: dotenv.env['MERCHANT_ID'] ?? '',
+      currency: dotenv.env['CURRENCY'] ?? '',
+      fpan: dotenv.env['FPAN'] ?? '',
+      expMonth: dotenv.env['EXP_MONTH'] ?? '',
+      expYear: dotenv.env['EXP_YEAR'] ?? '',
+      securityCode: dotenv.env['SECURITY_CODE'] ?? '',
+      fpanAdditional: dotenv.env['FPAN_ADDITIONAL'] ?? '',
+      expMonthAdditional: dotenv.env['EXP_MONTH_ADDITIONAL'] ?? '',
+      expYearAdditional: dotenv.env['EXP_YEAR_ADDITIONAL'] ?? '',
+      authorizationCode: dotenv.env['AUTHORIZATION_CODE'] ?? '',
+      giftCardNumber: dotenv.env['GIFT_CARD_NUMBER'] ?? '',
+      costcoGiftCardNumber: dotenv.env['COSTCO_GIFT_CARD_NUMBER'] ?? '',
+      costcoCardPin: dotenv.env['COSTCO_CARD_PIN'] ?? '',
+      apiPassword: dotenv.env['API_PASSWORD'] ?? '',
+      orderId: dotenv.env['ORDER_ID'] ?? '',
+    );
+  }
+
   Future<void> loadEnvData() async {
     try {
       if (platformInfo == 'WIN') {
@@ -397,7 +429,8 @@ class _LoginPageState extends State<LoginPage> {
         await dotenv.load();
       }
       envMap = dotenv.env; // Directly get the env variables as a Map
-      Logger.log('Loaded ENV data: $envMap', level: LogLevel.info);
+      MasterCard = createMasterCardFromEnv();
+      Logger.log('Loaded ENV data: $envMap', level: LogLevel.debug);
     } catch (e) {
       Logger.log(e.toString(), level: LogLevel.error);
       Logger.log('ERROR LOADING ENV FILE: ${e.toString()}',
@@ -721,7 +754,6 @@ class _LoginPageState extends State<LoginPage> {
           builder: (BuildContext context, StateSetter setState) {
             double totalAmount = 0;
             int totalQuantity = 0;
-
             // Calculate totalAmount and totalQuantity
             final addedItems = List.generate(cartItems.length, (index) {
               if (itemCounts[index] > 0) {
@@ -802,7 +834,6 @@ class _LoginPageState extends State<LoginPage> {
               discount = totalAmount * 0.20;
             }
             double finalTotal = totalAmount - discount;
-
             return AlertDialog(
               backgroundColor:
                   Colors.white, // Set background color of AlertDialog
@@ -980,222 +1011,590 @@ class _LoginPageState extends State<LoginPage> {
               ),
               actions: <Widget>[
                 if (addedItems.isNotEmpty)
-                  Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      // Center the buttons
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        MouseRegion(
-                          onEnter: (event) =>
-                              setState(() => isCancelHovered = true),
-                          onExit: (event) =>
-                              setState(() => isCancelHovered = false),
-                          child: InkWell(
-                            onTap: () {
-                              Navigator.of(context).pop(); // Close the dialog
-                            },
-                            child: Container(
-                              width: MediaQuery.of(context).size.width / 15,
-                              height: MediaQuery.of(context).size.height / 25,
-                              padding: const EdgeInsets.all(5),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: isCancelHovered
-                                      ? Colors.orange
-                                      : Colors.red, // Highlight on hover
-                                  width: 1.0,
-                                ),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(5)),
-                                boxShadow: <BoxShadow>[
-                                  BoxShadow(
-                                    color:
-                                        const Color(0xffdf8e33).withAlpha(10),
-                                    offset: const Offset(2, 4),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  )
-                                ],
-                                color: isCancelHovered
-                                    ? Colors.red[50]
-                                    : Colors.white, // Background on hover
-                              ),
-                              child: Text(
-                                'Cancel',
-                                style: TextStyle(
-                                  fontSize: fontSize.smallerFontSize5,
-                                  color: Colors.black,
+                  Column(
+                    children: [
+                      const Center(
+                        child: Text(
+                          'WL',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          // Center the buttons
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            MouseRegion(
+                              onEnter: (event) =>
+                                  setState(() => isCancelHovered_WL = true),
+                              onExit: (event) =>
+                                  setState(() => isCancelHovered_WL = false),
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 15,
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  padding: const EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: isCancelHovered_WL
+                                          ? Colors.orange
+                                          : Colors.red, // Highlight on hover
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
+                                    boxShadow: <BoxShadow>[
+                                      BoxShadow(
+                                        color: const Color(0xffdf8e33)
+                                            .withAlpha(10),
+                                        offset: const Offset(2, 4),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      )
+                                    ],
+                                    color: isCancelHovered_WL
+                                        ? Colors.red[50]
+                                        : Colors.white, // Background on hover
+                                  ),
+                                  child: Text(
+                                    'Cancel',
+                                    style: TextStyle(
+                                      fontSize: fontSize.smallerFontSize5,
+                                      color: Colors.black,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        MouseRegion(
-                          onEnter: (event) =>
-                              setState(() => isProceedHovered = true),
-                          onExit: (event) =>
-                              setState(() => isProceedHovered = false),
-                          child: InkWell(
-                            onTap: () async {
-                              resetItemCounts();
-                              /////////////////////////////TXN ROUTE/////////////////////////////
-                              formData['id'] = envMap['TRAN_PORTAL_ID'];
-                              formData['password'] =
-                                  envMap['TRAN_PORTAL_PASSWORD'];
-                              formData['amt'] =
-                                  totalAmount.toStringAsFixed(2).toString();
-                              formData['trackId'] = generateTrackId();
-                              Logger.log('DATA 1: $formData',
-                                  level: LogLevel.info);
-                              String queryString =
-                                  convertToQueryString(formData) + '&';
-                              Logger.log('DATA 2: $queryString',
-                                  level: LogLevel.info);
-                              String payload = AES.encryptAES(
-                                  envMap['RESOURCE_KEY'], queryString);
-                              Logger.log('DATA 3: $payload',
-                                  level: LogLevel.info);
-                              var jsonOutput = AES.convertToJsonString(
-                                  payload, envMap['TRAN_PORTAL_ID']);
-                              Logger.log('UploadData: $jsonOutput',
-                                  level: LogLevel.info);
-                              Map<String, dynamic> dbData = {
-                                'TRANSACTION_ID': formData['trackId'],
-                                'AMOUNT': double.parse(formData['amt']!),
-                                'CURRENCY': envMap['CURRENCY'] ??
-                                    'AED', // Default to 'USD' if not provided
-                                'TRANSACTION_DATE':
-                                    DateTime.now().toIso8601String(),
-                                'PAYMENT_ID': '',
-                                'PAYMENT_URL': ''
-                              };
-                              handlePaymentResponse(jsonOutput, dbData);
-                              /////////////////////////////TXN ROUTE/////////////////////////////
-                              Navigator.of(context).pop(); // Close the dialog
-                            },
-                            child: Container(
-                              width: MediaQuery.of(context).size.width / 15,
-                              height: MediaQuery.of(context).size.height / 25,
-                              padding: const EdgeInsets.all(5),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: isProceedHovered
-                                      ? Colors.blue
-                                      : Colors.green, // Highlight on hover
-                                  width: 1.0,
-                                ),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(5)),
-                                boxShadow: <BoxShadow>[
-                                  BoxShadow(
-                                    color:
-                                        const Color(0xffdf8e33).withAlpha(10),
-                                    offset: const Offset(2, 4),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  )
-                                ],
-                                color: isProceedHovered
-                                    ? Colors.green[50]
-                                    : Colors.white, // Background on hover
-                              ),
-                              child: Text(
-                                'Pay',
-                                style: TextStyle(
-                                  fontSize: fontSize.smallerFontSize5,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        MouseRegion(
-                          onEnter: (event) =>
-                              setState(() => isAuthdHovered = true),
-                          onExit: (event) =>
-                              setState(() => isAuthdHovered = false),
-                          child: InkWell(
-                            onTap: () async {
-                              resetItemCounts();
-                              /////////////////////////////TXN ROUTE/////////////////////////////
-                              formData['id'] = envMap['TRAN_PORTAL_ID'];
-                              formData['password'] =
-                                  envMap['TRAN_PORTAL_PASSWORD'];
-                              formData['amt'] =
-                                  totalAmount.toStringAsFixed(2).toString();
-                              formData['action'] = '4';
-                              formData['trackId'] = generateTrackId();
-                              Logger.log('DATA 1: $formData',
-                                  level: LogLevel.info);
-                              String queryString =
-                                  convertToQueryString(formData) + '&';
-                              Logger.log('DATA 2: $queryString',
-                                  level: LogLevel.info);
-                              String payload = AES.encryptAES(
-                                  envMap['RESOURCE_KEY'], queryString);
-                              Logger.log('DATA 3: $payload',
-                                  level: LogLevel.info);
-                              var jsonOutput = AES.convertToJsonString(
-                                  payload, envMap['TRAN_PORTAL_ID']);
-                              Logger.log('UploadData: $jsonOutput',
-                                  level: LogLevel.info);
-                              Map<String, dynamic> dbData = {
-                                'TRANSACTION_ID': formData['trackId'],
-                                'AMOUNT': double.parse(formData['amt']!),
-                                'CURRENCY': envMap['CURRENCY'] ??
-                                    'AED', // Default to 'USD' if not provided
-                                'TRANSACTION_DATE':
-                                    DateTime.now().toIso8601String(),
-                                'PAYMENT_ID': '',
-                                'PAYMENT_URL': ''
-                              };
-                              handlePaymentResponse(jsonOutput, dbData);
-                              /////////////////////////////TXN ROUTE/////////////////////////////
-                              Navigator.of(context).pop(); // Close the dialog
-                            },
-                            child: Container(
-                              width: MediaQuery.of(context).size.width / 15,
-                              height: MediaQuery.of(context).size.height / 25,
-                              padding: const EdgeInsets.all(5),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: isAuthdHovered
-                                      ? Colors.blue
-                                      : Colors
-                                          .indigoAccent, // Highlight on hover
-                                  width: 1.0,
-                                ),
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(5)),
-                                boxShadow: <BoxShadow>[
-                                  BoxShadow(
-                                    color:
-                                        const Color(0xffdf8e33).withAlpha(10),
-                                    offset: const Offset(2, 4),
-                                    blurRadius: 10,
-                                    spreadRadius: 2,
-                                  )
-                                ],
-                                color: isAuthdHovered
-                                    ? Colors.blue[50]
-                                    : Colors.white, // Background on hover
-                              ),
-                              child: Text(
-                                'Auth',
-                                style: TextStyle(
-                                  fontSize: fontSize.smallerFontSize5,
-                                  color: Colors.black,
+                            const SizedBox(width: 20),
+                            MouseRegion(
+                              onEnter: (event) =>
+                                  setState(() => isProceedHovered_WL = true),
+                              onExit: (event) =>
+                                  setState(() => isProceedHovered_WL = false),
+                              child: InkWell(
+                                onTap: () async {
+                                  resetItemCounts();
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+                                  formData['id'] = envMap['TRAN_PORTAL_ID'];
+                                  formData['password'] =
+                                      envMap['TRAN_PORTAL_PASSWORD'];
+                                  formData['amt'] =
+                                      totalAmount.toStringAsFixed(2).toString();
+                                  formData['trackId'] = generateTrackId();
+                                  Logger.log('DATA 1: $formData',
+                                      level: LogLevel.info);
+                                  String queryString =
+                                      convertToQueryString(formData) + '&';
+                                  Logger.log('DATA 2: $queryString',
+                                      level: LogLevel.info);
+                                  String payload = AES.encryptAES(
+                                      envMap['RESOURCE_KEY'], queryString);
+                                  Logger.log('DATA 3: $payload',
+                                      level: LogLevel.info);
+                                  var jsonOutput = AES.convertToJsonString(
+                                      payload, envMap['TRAN_PORTAL_ID']);
+                                  Logger.log('UploadData: $jsonOutput',
+                                      level: LogLevel.info);
+                                  Map<String, dynamic> dbData = {
+                                    'TRANSACTION_ID': formData['trackId'],
+                                    'AMOUNT': double.parse(formData['amt']!),
+                                    'CURRENCY': envMap['CURRENCY'] ??
+                                        'AED', // Default to 'USD' if not provided
+                                    'TRANSACTION_DATE':
+                                        DateTime.now().toIso8601String(),
+                                    'PAYMENT_ID': '',
+                                    'PAYMENT_URL': ''
+                                  };
+                                  handlePaymentResponse(jsonOutput, dbData);
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 15,
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  padding: const EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: isProceedHovered_WL
+                                          ? Colors.blue
+                                          : Colors.green, // Highlight on hover
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
+                                    boxShadow: <BoxShadow>[
+                                      BoxShadow(
+                                        color: const Color(0xffdf8e33)
+                                            .withAlpha(10),
+                                        offset: const Offset(2, 4),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      )
+                                    ],
+                                    color: isProceedHovered_WL
+                                        ? Colors.green[50]
+                                        : Colors.white, // Background on hover
+                                  ),
+                                  child: Text(
+                                    'Pay',
+                                    style: TextStyle(
+                                      fontSize: fontSize.smallerFontSize5,
+                                      color: Colors.black,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
+                            const SizedBox(width: 20),
+                            MouseRegion(
+                              onEnter: (event) =>
+                                  setState(() => isAuthdHovered_WL = true),
+                              onExit: (event) =>
+                                  setState(() => isAuthdHovered_WL = false),
+                              child: InkWell(
+                                onTap: () async {
+                                  resetItemCounts();
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+                                  formData['id'] = envMap['TRAN_PORTAL_ID'];
+                                  formData['password'] =
+                                      envMap['TRAN_PORTAL_PASSWORD'];
+                                  formData['amt'] =
+                                      totalAmount.toStringAsFixed(2).toString();
+                                  formData['action'] = '4';
+                                  formData['trackId'] = generateTrackId();
+                                  Logger.log('DATA 1: $formData',
+                                      level: LogLevel.info);
+                                  String queryString =
+                                      convertToQueryString(formData) + '&';
+                                  Logger.log('DATA 2: $queryString',
+                                      level: LogLevel.info);
+                                  String payload = AES.encryptAES(
+                                      envMap['RESOURCE_KEY'], queryString);
+                                  Logger.log('DATA 3: $payload',
+                                      level: LogLevel.info);
+                                  var jsonOutput = AES.convertToJsonString(
+                                      payload, envMap['TRAN_PORTAL_ID']);
+                                  Logger.log('UploadData: $jsonOutput',
+                                      level: LogLevel.info);
+                                  Map<String, dynamic> dbData = {
+                                    'TRANSACTION_ID': formData['trackId'],
+                                    'AMOUNT': double.parse(formData['amt']!),
+                                    'CURRENCY': envMap['CURRENCY'] ??
+                                        'AED', // Default to 'USD' if not provided
+                                    'TRANSACTION_DATE':
+                                        DateTime.now().toIso8601String(),
+                                    'PAYMENT_ID': '',
+                                    'PAYMENT_URL': ''
+                                  };
+                                  handlePaymentResponse(jsonOutput, dbData);
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 15,
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  padding: const EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: isAuthdHovered_WL
+                                          ? Colors.blue
+                                          : Colors
+                                              .indigoAccent, // Highlight on hover
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
+                                    boxShadow: <BoxShadow>[
+                                      BoxShadow(
+                                        color: const Color(0xffdf8e33)
+                                            .withAlpha(10),
+                                        offset: const Offset(2, 4),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      )
+                                    ],
+                                    color: isAuthdHovered_WL
+                                        ? Colors.blue[50]
+                                        : Colors.white, // Background on hover
+                                  ),
+                                  child: Text(
+                                    'Auth',
+                                    style: TextStyle(
+                                      fontSize: fontSize.smallerFontSize5,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ]), //WLPG
+                      const Divider(color: Colors.blue),
+                      const Center(
+                        child: Text(
+                          'MPGS',
+                          style: TextStyle(fontWeight: FontWeight.bold),
                         ),
-                      ])
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          // Center the buttons
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            MouseRegion(
+                              onEnter: (event) =>
+                                  setState(() => isCancelHovered_MPGS = true),
+                              onExit: (event) =>
+                                  setState(() => isCancelHovered_MPGS = false),
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 15,
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  padding: const EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: isCancelHovered_MPGS
+                                          ? Colors.orange
+                                          : Colors.red, // Highlight on hover
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
+                                    boxShadow: <BoxShadow>[
+                                      BoxShadow(
+                                        color: const Color(0xffdf8e33)
+                                            .withAlpha(10),
+                                        offset: const Offset(2, 4),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      )
+                                    ],
+                                    color: isCancelHovered_MPGS
+                                        ? Colors.red[50]
+                                        : Colors.white, // Background on hover
+                                  ),
+                                  child: Text(
+                                    'Cancel',
+                                    style: TextStyle(
+                                      fontSize: fontSize.smallerFontSize5,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            MouseRegion(
+                              onEnter: (event) =>
+                                  setState(() => isProceedHovered_MPGS = true),
+                              onExit: (event) =>
+                                  setState(() => isProceedHovered_MPGS = false),
+                              child: InkWell(
+                                onTap: () async {
+                                  resetItemCounts();
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+                                  Logger.log(
+                                      '------------------ENTRY-------------------------',
+                                      level: LogLevel.critical);
+                                  Map<String, dynamic> dbData = {
+                                    'TRANSACTION_ID': formData['trackId'],
+                                    'AMOUNT': double.parse(formData['amt']!),
+                                    'CURRENCY': envMap['CURRENCY'] ??
+                                        'AED', // Default to 'USD' if not provided
+                                    'TRANSACTION_DATE':
+                                        DateTime.now().toIso8601String(),
+                                    'PAYMENT_ID': '',
+                                    'PAYMENT_URL': ''
+                                  };
+                                  mpgsCheckoutPurchase(dbData);
+                                  Logger.log(
+                                      '------------------ENTRY-------------------------',
+                                      level: LogLevel.critical);
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 15,
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  padding: const EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: isProceedHovered_MPGS
+                                          ? Colors.blue
+                                          : Colors.green, // Highlight on hover
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
+                                    boxShadow: <BoxShadow>[
+                                      BoxShadow(
+                                        color: const Color(0xffdf8e33)
+                                            .withAlpha(10),
+                                        offset: const Offset(2, 4),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      )
+                                    ],
+                                    color: isProceedHovered_MPGS
+                                        ? Colors.green[50]
+                                        : Colors.white, // Background on hover
+                                  ),
+                                  child: Text(
+                                    'Pay',
+                                    style: TextStyle(
+                                      fontSize: fontSize.smallerFontSize5,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            MouseRegion(
+                              onEnter: (event) =>
+                                  setState(() => isAuthdHovered_MPGS = true),
+                              onExit: (event) =>
+                                  setState(() => isAuthdHovered_MPGS = false),
+                              child: InkWell(
+                                onTap: () async {
+                                  resetItemCounts();
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 15,
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  padding: const EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: isAuthdHovered_MPGS
+                                          ? Colors.blue
+                                          : Colors
+                                              .indigoAccent, // Highlight on hover
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
+                                    boxShadow: <BoxShadow>[
+                                      BoxShadow(
+                                        color: const Color(0xffdf8e33)
+                                            .withAlpha(10),
+                                        offset: const Offset(2, 4),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      )
+                                    ],
+                                    color: isAuthdHovered_MPGS
+                                        ? Colors.blue[50]
+                                        : Colors.white, // Background on hover
+                                  ),
+                                  child: Text(
+                                    'Auth',
+                                    style: TextStyle(
+                                      fontSize: fontSize.smallerFontSize5,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ]), //MPGS
+                      const Divider(color: Colors.blue),
+                      const Center(
+                        child: Text(
+                          'CYBS',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          // Center the buttons
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            MouseRegion(
+                              onEnter: (event) =>
+                                  setState(() => isCancelHovered_CYBS = true),
+                              onExit: (event) =>
+                                  setState(() => isCancelHovered_CYBS = false),
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 15,
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  padding: const EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: isCancelHovered_CYBS
+                                          ? Colors.orange
+                                          : Colors.red, // Highlight on hover
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
+                                    boxShadow: <BoxShadow>[
+                                      BoxShadow(
+                                        color: const Color(0xffdf8e33)
+                                            .withAlpha(10),
+                                        offset: const Offset(2, 4),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      )
+                                    ],
+                                    color: isCancelHovered_CYBS
+                                        ? Colors.red[50]
+                                        : Colors.white, // Background on hover
+                                  ),
+                                  child: Text(
+                                    'Cancel',
+                                    style: TextStyle(
+                                      fontSize: fontSize.smallerFontSize5,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            MouseRegion(
+                              onEnter: (event) =>
+                                  setState(() => isProceedHovered_CYBS = true),
+                              onExit: (event) =>
+                                  setState(() => isProceedHovered_CYBS = false),
+                              child: InkWell(
+                                onTap: () async {
+                                  resetItemCounts();
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 15,
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  padding: const EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: isProceedHovered_CYBS
+                                          ? Colors.blue
+                                          : Colors.green, // Highlight on hover
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
+                                    boxShadow: <BoxShadow>[
+                                      BoxShadow(
+                                        color: const Color(0xffdf8e33)
+                                            .withAlpha(10),
+                                        offset: const Offset(2, 4),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      )
+                                    ],
+                                    color: isProceedHovered_CYBS
+                                        ? Colors.green[50]
+                                        : Colors.white, // Background on hover
+                                  ),
+                                  child: Text(
+                                    'Pay',
+                                    style: TextStyle(
+                                      fontSize: fontSize.smallerFontSize5,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            MouseRegion(
+                              onEnter: (event) =>
+                                  setState(() => isAuthdHovered_CYBS = true),
+                              onExit: (event) =>
+                                  setState(() => isAuthdHovered_CYBS = false),
+                              child: InkWell(
+                                onTap: () async {
+                                  resetItemCounts();
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+
+                                  /////////////////////////////TXN ROUTE/////////////////////////////
+                                  Navigator.of(context)
+                                      .pop(); // Close the dialog
+                                },
+                                child: Container(
+                                  width: MediaQuery.of(context).size.width / 15,
+                                  height:
+                                      MediaQuery.of(context).size.height / 25,
+                                  padding: const EdgeInsets.all(5),
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: isAuthdHovered_CYBS
+                                          ? Colors.blue
+                                          : Colors
+                                              .indigoAccent, // Highlight on hover
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(5)),
+                                    boxShadow: <BoxShadow>[
+                                      BoxShadow(
+                                        color: const Color(0xffdf8e33)
+                                            .withAlpha(10),
+                                        offset: const Offset(2, 4),
+                                        blurRadius: 10,
+                                        spreadRadius: 2,
+                                      )
+                                    ],
+                                    color: isAuthdHovered_CYBS
+                                        ? Colors.blue[50]
+                                        : Colors.white, // Background on hover
+                                  ),
+                                  child: Text(
+                                    'Auth',
+                                    style: TextStyle(
+                                      fontSize: fontSize.smallerFontSize5,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ]), //CYBS
+                    ],
+                  )
                 else
                   Center(
                     child: TextButton(
@@ -1392,6 +1791,71 @@ class _LoginPageState extends State<LoginPage> {
       Logger.log('Exception: $e', level: LogLevel.error);
     }
   }
+
+  //////////////////////////MPGS DATA REQUEST ////////////////////////
+  Future<void> mpgsCheckoutPurchase(dbData) async {
+    // Construct the URL using the host and merchantId from the environment variables
+    final host = MasterCard.host;
+    final merchantId = MasterCard.merchantId;
+    // final url = 'https://$host/api/rest/version/100/merchant/$merchantId/session';
+    final url = 'http://localhost:9090/proxy/mpgsCheckoutPurchase';
+    // Prepare the request body
+    final body = {
+      "host": host, // Pass host from Flutter
+      "merchantId": merchantId, // Pass merchantId from Flutter
+      "apiOperation": "INITIATE_CHECKOUT",
+      "checkoutMode": "WEBSITE",
+      "interaction": {
+        "operation": "PURCHASE",
+        "merchant": {
+          "name": "Pine Labs Dubai",
+          "url": "https://www.your.site.url.com",
+        },
+        "returnUrl": "https://www.your.site.url.com",
+      },
+      "order": {
+        "currency": MasterCard.currency, // Use currency from .env
+        // "amount": totalAmount.toStringAsFixed(2).toString();,
+        "id": MasterCard.orderId, // Use orderId from .env
+        "description": "Goods and Services",
+      },
+    };
+
+    // Encode the body to JSON
+    final bodyJson = jsonEncode(body);
+    Logger.log(bodyJson);
+
+    // Prepare basic authentication
+    final username = 'merchant.$merchantId';
+    final password = MasterCard.apiPassword;
+    final basicAuth =
+        'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+
+    Logger.log(basicAuth, level: LogLevel.critical);
+    try {
+      // Make the POST request
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': basicAuth,
+        },
+        body: bodyJson,
+      );
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        Logger.log('return DATA 0: $data', level: LogLevel.info);
+      } else {
+        Logger.log('Request failed with status: ${response.statusCode}',
+            level: LogLevel.critical);
+        Logger.log('Response body: ${response.body}', level: LogLevel.error);
+      }
+    } catch (e) {
+      Logger.log('Exception: $e', level: LogLevel.error);
+    }
+  }
+  //////////////////////////MPGS DATA REQUEST ////////////////////////
+
   //////////////////////DATA CONVERSION LOGICS //////////////////////
 
   String encryptionPayload(String payload, String encryptionKey) {
