@@ -341,6 +341,19 @@ class _LoginPageState extends State<LoginPage> {
   int cartCount = 0; // Total items in the cart
   List<int> itemCounts =
       List.generate(20, (_) => 0); // Tracks items added for each product
+  // final Map<String, String> formData = {
+  //   'amt': '65.00',
+  //   'action': '1',
+  //   'trackId': 'RnxkiOvuj4VWjDykkC',
+  //   'udf1': 'PRATHEESH',
+  //   'udf2': '0529716497',
+  //   'udf3': 'test udf3',
+  //   'udf4': 'test udf4',
+  //   'udf5': 'test udf5',
+  //   'currencycode': '784',
+  //   'id': 'ipay90ce0bff79d54',
+  //   'password': '122N14#2l507122',
+  // };
   final Map<String, String> formData = {
     'amt': '65.00',
     'action': '1',
@@ -350,9 +363,33 @@ class _LoginPageState extends State<LoginPage> {
     'udf3': 'test udf3',
     'udf4': 'test udf4',
     'udf5': 'test udf5',
+    "udf6": "Testudf6",
+    "udf7": "Testudf7",
+    "udf8": "Testudf8",
+    "udf9": "Testudf9",
+    "udf10": "Testudf10",
+    "udf11": "Testudf11",
+    "udf12": "Testudf12",
+    "udf13": "Testudf13",
+    "udf14": "Testudf14",
+    "udf15": "Testudf15",
+    "udf16": "Testudf16",
+    "udf17": "Testudf17",
+    "udf18": "Testudf18",
+    "udf19": "Testudf19",
+    "udf20": "Testudf20",
     'currencycode': '784',
     'id': 'ipay90ce0bff79d54',
     'password': '122N14#2l507122',
+    "firstName": "Vishnu",
+    "lastName": "Thangavelu",
+    "email": "vishnut@fsstech.com",
+    "phoneNumber": "7581890118",
+    "address1": "Chennai",
+    "locality": "Siruseri",
+    "administrativeArea": "Sipcot IT Park",
+    "country": "India",
+    "postalCode": "603103"
   };
   var envData = '';
   Map<String, dynamic> envMap = {};
